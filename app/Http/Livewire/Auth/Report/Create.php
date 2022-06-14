@@ -136,7 +136,9 @@ class Create extends Component
 
         $this->unpaids = Order::where('checked_out', false)->get();
 
-        $this->latePayments = Order::whereDate('paid_on', $this->date)->get();
+        $this->latePayments = Order::where(function ($query) {
+            $query->whereRaw('DATE(paid_on) != DATE(created_at)');
+        })->whereDate('paid_on', $this->date)->get();
 
 
         $this->total = $this->overalls->sum( function ($overall) {
