@@ -31,6 +31,11 @@
                     @foreach ($order->orderDetails as $details)
                         <li>
                             {{ $details->dish->name }} ({{ $details->dish->properties }}) - {{ $details->pcs }} pc/s
+                            @if($details->note == '' || !$details->note)
+                                <div class="ml-5 italic text-sm">
+                                    Note: {{ $details->note }}
+                                </div>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
