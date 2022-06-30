@@ -87,7 +87,6 @@ class Checkout extends Modal
     public function confirmCheckOut()
     {
 
-
         if(strlen($this->cash) >= 10)
         {
             $this->addError('cash', 'Max length exceeded. Maximum: 10 digits');
@@ -99,7 +98,6 @@ class Checkout extends Modal
             return;
         }
 
-
         DB::transaction(function () {
 
             $this->order->update([
@@ -107,6 +105,7 @@ class Checkout extends Modal
                 'total' => $this->totalPrice,
                 'cash' => $this->cash,
                 'change' => $this->change,
+                'payment_type' => $this->paymentType,
                 'paid_on' => now(),
             ]);
 

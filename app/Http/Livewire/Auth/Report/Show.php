@@ -26,6 +26,7 @@ class Show extends Component
     public $unpaids;
     public $latePayments;
     public $totalRemittance;
+    public $gcash;
 
     protected $rules = [
         'remit' => ['required', 'numeric' ,'min:1'],
@@ -36,34 +37,35 @@ class Show extends Component
         $this->date = $report->date;
         $this->dateType = 'single';
         $this->dishes = Dish::orderBy('name')->orderBy('properties')->get()->toArray();
-        $this->spoilages = $report->spoilages;
+        $this->spoilages = $report->spoilages ?? [];
         $this->unpaid = $report->total_unpaid;
-        $this->unpaids = $report->unpaid;
-        $this->latePayments = $report->late;
+        $this->unpaids = $report->unpaid ?? [];
+        $this->latePayments = $report->late ?? [];
         $this->remit = $report->remitted;
         $this->totalRemittance = $report->total_remittance;
+        $this->gcash = $report->gcash;
 
     }
 
-    public function save()
-    {
-        $this->validate();
+    // public function save()
+    // {
+    //     $this->validate();
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        $report = Report::create([
-            'remitted' => $this->remit,
-            'late_payments' => $this->latePayments->sum('total'),
-            'total_remittance' => $this->totalRemittance,
-        ]);
+    //     $report = Report::create([
+    //         'remitted' => $this->remit,
+    //         'late_payments' => $this->latePayments->sum('total'),
+    //         'total_remittance' => $this->totalRemittance,
+    //     ]);
 
 
-        $report->spoilages()->createMany(collect($this->spoilages)->toArray());
+    //     $report->spoilages()->createMany(collect($this->spoilages)->toArray());
 
-        DB::commit();
+    //     DB::commit();
 
-        return redirect('/admin/reports');
-    }
+    //     return redirect('/admin/reports');
+    // }
 
     public function render()
     {

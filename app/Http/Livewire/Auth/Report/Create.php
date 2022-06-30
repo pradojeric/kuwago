@@ -24,7 +24,9 @@ class Create extends Component
     public $overalls;
     public $unpaids;
     public $latePayments;
+    public $lateTotal;
     public $totalRemittance;
+    public $gcash;
 
     protected $rules = [
         'remit' => ['required', 'numeric' ,'min:1'],
@@ -98,7 +100,6 @@ class Create extends Component
             ];
         }
 
-
         Report::create([
             'date' => $this->date,
             'remitted' => $this->remit,
@@ -108,6 +109,7 @@ class Create extends Component
             'spoilages' => json_encode($this->spoilages),
             'late' => json_encode($late),
             'unpaid' => json_encode($unpaids),
+            'gcash' => $this->gcash,
         ]);
 
         DB::commit();
@@ -136,7 +138,11 @@ class Create extends Component
 
         $this->unpaids = Order::where('checked_out', false)->get();
 
-        $this->latePayments = Order::where(function ($query) {
+        $order = Order::whereDate('paid_on', $this->date);
+
+        $this->gcash = (clone $order)->where('payment_type', 'gcash')->sum('total');
+
+        $this->latePayments = Order::with(['orderDetails'])->where(function ($query) {
             $query->whereRaw('DATE(paid_on) != DATE(created_at)');
         })->whereDate('paid_on', $this->date)->get();
 
@@ -146,6 +152,8 @@ class Create extends Component
                 return $dish->orderDetails->sum('price');
             });
         });
+
+        $this->lateTotal = $this->latePayments->sum('total');
 
         return view('livewire.auth.report.create');
     }

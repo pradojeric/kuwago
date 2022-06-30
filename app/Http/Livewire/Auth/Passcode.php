@@ -58,6 +58,8 @@ class Passcode extends Modal
             $this->addError('passcode', 'Passcode incorrect');
             $this->reset('passcode');
         }
+
+
     }
 
     public function close()

@@ -138,7 +138,6 @@
             <x-modal>
                 <x-slot name="header">
                     <span x-text="selectedDish.name + ' x ' +selectedDish.quantity" />
-
                 </x-slot>
                 <div class="px-4 pb-4 sm:p-6 sm:pb-4 flex flex-col">
                     <span class="text-base font-medium">Add Note</span>

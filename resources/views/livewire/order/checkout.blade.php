@@ -107,12 +107,12 @@
                             </span>
                             <div class="flex space-x-3">
                                 <div class="flex space-x-2 items-center">
-                                    <x-input type="radio" name="paymentType" wire:model.lazy="paymentType" id="cash"
+                                    <x-input type="radio" name="paymentType" wire:model.lazy="paymentType" id="cash" x-bind:disabled="paid ? true : false"
                                         value="cash" />
                                     <x-label for="cash" :value="__('Cash')" />
                                 </div>
                                 <div class="flex space-x-2 items-center">
-                                    <x-input type="radio" name="paymentType" wire:model.lazy="paymentType" id="gcash"
+                                    <x-input type="radio" name="paymentType" wire:model.lazy="paymentType" id="gcash" x-bind:disabled="paid ? true : false"
                                         value="gcash" />
                                     <x-label for="gcash" :value="__('GCash')" />
                                 </div>

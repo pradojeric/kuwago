@@ -44,6 +44,7 @@ class Orders extends Component
             'reason' => 'Order voided',
         ]);
 
+        $item->orderDetails()->delete();
         $item->delete();
 
         //

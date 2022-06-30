@@ -32,17 +32,8 @@ class WaiterController extends Controller
 
     public function waiterOrder()
     {
-        $tables = Table::query();
 
-
-        if (Auth::user()->hasRole('waiter')) {
-            //
-            $table_ids = Auth::user()->assignTables->pluck('id');
-            $tables->whereIn('id', $table_ids);
-        }
-
-        $tables = $tables->get();
-        return view('order', compact('tables'));
+        return view('order');
     }
 
     public function adminCode(Request $request)

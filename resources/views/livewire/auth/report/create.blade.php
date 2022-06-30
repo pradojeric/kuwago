@@ -144,12 +144,13 @@
 
                                 </div>
                             @endforeach
+
                             <div class="w-1/2">
                                 <hr>
                             </div>
                             <div class="flex justify-between w-1/2 px-3 font-bold mb-1">
                                 <div>
-                                    Total Sales
+                                    Total
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
@@ -163,41 +164,8 @@
                                 </div>
                             </div>
 
-                            @foreach ($unpaids as $unpaid)
-                                <div class="flex items-center justify-between w-1/2 px-3 bg-yellow-200">
-                                    <div>
-                                        {{ $unpaid->full_name }} {{ $unpaid->by ? "care off {$unpaid->by}" : "" }}
-                                    </div>
-                                    <div class="flex justify-between w-1/3">
-                                        <div>
-                                            ₱
-                                        </div>
-                                        <div>
-                                            {{ number_format($unpaid->total, 2, '.', ',') }}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            <div class="w-1/2 my-1">
-                                <hr>
-                            </div>
-                            <div class="flex items-center justify-between w-1/2 px-3 my-1">
-
-                                <div>
-                                    To Remit
-                                </div>
-                                <div class="flex justify-between w-1/3">
-                                    <div>
-                                        ₱
-                                    </div>
-                                    <div>
-                                        <x-input type="text" class="text-xs text-right" x-model.number.lazy="remit"></x-input>
-                                    </div>
-                                </div>
-                            </div>
-
                             @foreach ($latePayments as $late)
-                                <div class="flex items-center justify-between w-1/2 px-3">
+                                <div class="flex items-center justify-between w-1/2 px-3 mb-1">
                                     <div>
                                         {{ $late->full_name }} {{ $late->by ? "care off {$late->by}" : "" }}  ({{$late->paid_on->format('M d')}})
                                     </div>
@@ -212,23 +180,84 @@
                                 </div>
                             @endforeach
 
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+
+                            @foreach ($unpaids as $unpaid)
+                                <div class="flex items-center justify-between w-1/2 px-3 bg-yellow-200 mb-1">
+                                    <div>
+                                        {{ $unpaid->full_name }} {{ $unpaid->by ? "care off {$unpaid->by}" : "" }}
+                                    </div>
+                                    <div class="flex justify-between w-1/3">
+                                        <div>
+                                            ₱
+                                        </div>
+                                        <div>
+                                            {{ number_format($unpaid->total, 2, '.', ',') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
                             <div class="w-1/2 my-1">
                                 <hr>
                             </div>
                             <div class="flex items-center justify-between w-1/2 px-3">
 
                                 <div>
-                                    Total Remittance
+                                    Total Sales
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
                                         ₱
                                     </div>
                                     <div>
-                                        <span x-text="numberWithCommas(getTotalRemittance())"></span>
+                                        <span x-text="numberWithCommas(getTotalSales())"></span>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold mb-1">
+                                <div>
+                                    GCash
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        {{
+                                            number_format( $gcash, 2, '.', ',')
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-1/2 my-1">
+                                <hr>
+                            </div>
+                            <div class="flex items-center justify-between w-1/2 px-3 my-1">
+
+                                <div>
+                                    Cash
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <x-input type="text" class="text-xs text-right" x-model.number.lazy="remit"></x-input>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
                         </div>
 
                     </div>
@@ -250,8 +279,11 @@
             dishes: @entangle('dishes').defer,
             totalRemittance: @entangle('totalRemittance').defer,
             remit: @entangle('remit'),
-            total: {{ $total }},
-            unpaid: {{ $unpaids->sum('total') }},
+            total: @entangle('total'),
+            late: @entangle('lateTotal'),
+            init(){
+                this.totalRemittance = 0
+            },
             addSpoilage() {
                 this.spoilages.push({
                     'dish' : '',
@@ -261,9 +293,8 @@
             removeSpoilage(index) {
                 this.spoilages.splice(index, 1)
             },
-            getTotalRemittance() {
-                this.totalRemittance = this.unpaid + this.remit
-                return this.totalRemittance
+            getTotalSales() {
+                return this.total + this.late
             },
         };
     };
