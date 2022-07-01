@@ -357,10 +357,60 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
 
+                </div>
+            </div>
 
+            <div x-show="activeTab === 3">
+                <div class="mx-6">
+
+
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Order</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Name</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Care Of</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Date</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($unpaids as $unpaid)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $unpaid->order_number }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $unpaid->full_name }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $unpaid->by }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $unpaid->created_at->format('F d, Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ '₱ '.number_format($unpaid->total, 2, '.', ',') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-gray-300">
+                                <td colspan="3"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">Total</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{{ '₱ '.number_format($unpaids->sum('total'), 2, '.', ',') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
@@ -404,6 +454,7 @@
                 "Orders",
                 "Overall",
                 "Reports",
+                "Unpaids",
             ],
             date1: @entangle('date'),
             date2: @entangle('date2'),

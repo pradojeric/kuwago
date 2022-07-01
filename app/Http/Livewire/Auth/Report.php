@@ -147,7 +147,8 @@ class Report extends Component
                 },
             ])
             ->get(),
-           'reports' => ReportModel::paginate($this->paginate),
+           'reports' => ReportModel::latest()->paginate($this->paginate),
+           'unpaids' => Order::whereNull('paid_on')->get(),
         ]);
     }
 }

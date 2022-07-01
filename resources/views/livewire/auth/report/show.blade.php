@@ -1,7 +1,7 @@
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Report') }}
+            {{ __('Show Report') }}
         </h2>
     </x-slot>
 
@@ -75,34 +75,74 @@
                                 </div>
                             @endforeach
 
-                            <div>
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Spoilage</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">Quantity</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($spoilages as $spoilage)
-                                            <tr>
-                                                <td class="whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $spoilage['dish'] }}
-                                                </td>
-                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
-                                                    {{ $spoilage['quantity'] }}
-                                                </td>
-
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
 
                         </div>
+
+                        <div class="grid grid-flow-row grid-cols-2 gap-4">
+
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Spoilage</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">Quantity</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($spoilages as $spoilage)
+                                        <tr>
+                                            <td class="whitespace-nowrap text-sm text-gray-900">
+                                                {{ $spoilage['dish'] }}
+                                            </td>
+                                            <td class="whitespace-nowrap text-sm text-gray-900 text-center">
+                                                {{ $spoilage['quantity'] }}
+                                            </td>
+
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Purchases</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">Price</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($purchases as $purchase)
+                                        <tr>
+                                            <td class="whitespace-nowrap text-sm text-gray-900">
+                                                {{ $purchase['name'] }}
+                                            </td>
+                                            <td class="whitespace-nowrap text-sm text-gray-900 text-center">
+                                                {{ $purchase['price'] }}
+                                            </td>
+
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-200 py-3">
+                                        <td class="whitespace-nowrap text-sm text-gray-900 text-right">Total</td>
+                                        <td class="whitespace-nowrap text-sm text-gray-900 text-center"><span x-text="getTotalPurchase()"></span></td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+
+                        </div>
+
+                        <hr class="my-2">
+
 
                         <div class="mt-2">
                             @foreach ($overalls as $overall)
@@ -156,26 +196,61 @@
                                 </div>
                             @endforeach
 
-                            @foreach ($unpaids as $unpaid)
-                                <div class="flex items-center justify-between w-1/2 px-3 bg-yellow-200">
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
+                                <div>
+                                    Total Unpaid
+                                </div>
+                                <div class="flex justify-between w-1/3">
                                     <div>
-                                        {{ $unpaid['name'] }}
+                                        ₱
                                     </div>
-                                    <div class="flex justify-between w-1/3">
-                                        <div>
-                                            ₱
-                                        </div>
-                                        <div>
-                                            {{ $unpaid['price'] }}
-                                        </div>
+                                    <div>
+                                        <span x-text="getTotalUnpaid()"></span>
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
 
                             <div class="w-1/2">
                                 <hr>
                             </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold mb-1">
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
+                                <div>
+                                    Total Purchases
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <span x-text="getTotalPurchase()"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
+                                <div>
+                                    Total Sales
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <span x-text="getTotalSales()"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
                                 <div>
                                     GCash
                                 </div>
@@ -184,9 +259,7 @@
                                         ₱
                                     </div>
                                     <div>
-                                        {{
-                                            number_format( $gcash, 2, '.', ',')
-                                        }}
+                                        <span x-text="getGcash()"></span>
                                     </div>
                                 </div>
                             </div>
@@ -209,6 +282,23 @@
                                 </div>
                             </div>
 
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-green-500 rounded">
+                                <div>
+                                    Total Remittance
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <span x-text="getTotalRemittance()"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -225,11 +315,40 @@
         return {
 
             date1: @entangle('date'),
+            date2: @entangle('date2'),
             spoilages: @entangle('spoilages').defer,
+            purchases: @entangle('purchases').defer,
             dishes: @entangle('dishes').defer,
-            remit: @entangle('remit').defer,
-            unpaid: @entangle('unpaid').defer,
-            total: {{ $total }},
+            remit: @entangle('remit'),
+            total: @entangle('total'),
+            late: @entangle('lateTotal'),
+            gcash: @entangle('gcash'),
+            totalRemittance: @entangle('totalRemittance').defer,
+            totalPurchases: @entangle('totalPurchases').defer,
+            totalUnpaid: @entangle('totalUnpaid').defer,
+            totalSales: @entangle('totalSales').defer,
+            getTotalPurchase(){
+                this.totalPurchases = 0
+                this.purchases.forEach(element => {
+                    this.totalPurchases += element.price
+                });
+
+                return numberWithCommas(this.totalPurchases)
+            },
+            getTotalUnpaid(){
+                return numberWithCommas(this.totalUnpaid)
+            },
+            getTotalSales(){
+                this.totalSales = this.total + this.late - this.totalUnpaid - this.totalPurchases
+                return numberWithCommas(this.totalSales)
+            },
+            getGcash(){
+                return numberWithCommas(this.gcash)
+            },
+            getTotalRemittance(){
+                this.totalRemittance = this.gcash + this.remit
+                return numberWithCommas(this.totalRemittance)
+            },
         };
     };
 

@@ -19,13 +19,19 @@ class Create extends Component
     public $date2 = "";
     public $spoilages = [];
     public $dishes = [];
+    public $purchases = [];
+
     public $total;
     public $remit = 0;
     public $overalls;
     public $unpaids;
     public $latePayments;
     public $lateTotal;
+    public $totalUnpaid;
     public $totalRemittance;
+    public $totalPurchases;
+    public $totalSales;
+
     public $gcash;
 
     protected $rules = [
@@ -100,15 +106,27 @@ class Create extends Component
             ];
         }
 
+        $purchases = [];
+
+        foreach($this->purchases as $p) {
+            $purchases[] = [
+                'name' => $p['name'],
+                'price' => $p['price'],
+            ];
+        }
+
         Report::create([
             'date' => $this->date,
             'remitted' => $this->remit,
-            'total_unpaid' => $this->unpaids->sum('total'),
-            'late_payments' => $this->latePayments->sum('total'),
+            'total_unpaid' => $this->totalUnpaid,
+            'late_payments' => $this->lateTotal,
             'total_remittance' => $this->totalRemittance,
-            'spoilages' => json_encode($this->spoilages),
-            'late' => json_encode($late),
-            'unpaid' => json_encode($unpaids),
+            'total_sales' => $this->totalSales,
+            'spoilages' => $this->spoilages,
+            'late' => $late,
+            'unpaid' => $unpaids,
+            'total_purchases' => $this->totalPurchases,
+            'purchases' => $purchases,
             'gcash' => $this->gcash,
         ]);
 
@@ -136,7 +154,7 @@ class Create extends Component
         ])
         ->get();
 
-        $this->unpaids = Order::where('checked_out', false)->get();
+        $this->unpaids = Order::where('checked_out', false)->whereDate( 'created_at', $this->date )->get();
 
         $order = Order::whereDate('paid_on', $this->date);
 
@@ -154,6 +172,7 @@ class Create extends Component
         });
 
         $this->lateTotal = $this->latePayments->sum('total');
+        $this->totalUnpaid = $this->unpaids->sum('total');
 
         return view('livewire.auth.report.create');
     }

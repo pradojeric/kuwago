@@ -14,7 +14,8 @@ class Report extends Model
     protected $casts = [
         'spoilages' => 'array',
         'unpaid' => 'array',
-        'late' => 'array'
+        'late' => 'array',
+        'purchases' => 'array',
     ];
 
 }

@@ -12,8 +12,9 @@ class Dashboard extends Component
     use WithPagination;
 
     public $date;
-    public $action;
     public $total;
+    public $totalCash;
+    public $totalGCash;
 
     public function mount()
     {
@@ -40,12 +41,19 @@ class Dashboard extends Component
     public function render()
     {
         $orders = Auth::user()->orders()
-            ->whereDate('created_at', $this->date)
-            ->when($this->action != 'all', function ($query) {
-                $query->where('action', $this->action);
-            });
+            ->whereDate('created_at', $this->date);
 
-        $this->total = $orders->sum('total');
+        $this->total = (clone $orders)->sum('total');
+
+        $paidOrder = (clone $orders)->where('paid_on', '<>', null);
+
+        $this->totalCash = $paidOrder->get()->sum(function ($order) {
+            if($order->payment_type == 'cash') return $order->total;
+        });
+
+        $this->totalGCash = $paidOrder->get()->sum(function ($order) {
+            if($order->payment_type == 'gcash') return $order->total;
+        });
 
         $orders = $orders->paginate(15);
 

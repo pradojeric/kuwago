@@ -18,16 +18,9 @@
                         <div class="flex justify-end mx-6 py-2">
 
                             <div class="flex space-x-3 items-center">
-                                {{-- @if($dateType == 'single') --}}
-                                    <button wire:click="prevDate"><i class="fa fa-arrow-left"></i></button>
-                                    <x-input type="date" class="w-auto text-sm" wire:model="date" />
-                                    <button wire:click="nextDate"><i class="fa fa-arrow-right"></i></button>
-                                {{-- @endif --}}
-                                {{-- @if($dateType == 'range')
-                                    <x-input type="date" class="w-auto text-sm" wire:model="date" />
-                                    <span>-</span>
-                                    <x-input type="date" class="w-auto text-sm" wire:model="date2" />
-                                @endif --}}
+                                <button wire:click="prevDate"><i class="fa fa-arrow-left"></i></button>
+                                <x-input type="date" class="w-auto text-sm" wire:model="date" />
+                                <button wire:click="nextDate"><i class="fa fa-arrow-right"></i></button>
                             </div>
                         </div>
 
@@ -86,6 +79,11 @@
                                 </div>
                             @endforeach
 
+
+
+                        </div>
+
+                        <div class="grid grid-flow-row grid-cols-2 gap-4">
                             <div>
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -125,7 +123,52 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <div>
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Purchases</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Price</th>
+                                            <th scope="col" class="relative px-6 py-3">
+                                                <div>
+                                                    <button type="button" class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="addPurchase">+</button>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <template x-for="(purchase, index) in purchases" :key="index">
+                                            <tr>
+                                                <td class="whitespace-nowrap text-sm text-gray-900">
+                                                    <x-input type="text" x-model="purchase.name" class="block w-full"></x-input>
+                                                </td>
+                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <x-input type="number" x-model.number="purchase.price" class="block w-full" min=0></x-input>
+                                                </td>
+                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <div>
+                                                        <button type="button" class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="removePurchase(index)">-</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-gray-200 py-3">
+                                            <td class="whitespace-nowrap text-sm text-gray-900 text-right">Total</td>
+                                            <td class="whitespace-nowrap text-sm text-gray-900 text-center"><span x-text="getTotalPurchase()"></span></td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
                         </div>
+
+                        <hr class="my-2">
 
                         <div class="mt-2">
                             @foreach ($overalls as $overall)
@@ -180,31 +223,45 @@
                                 </div>
                             @endforeach
 
+
                             <div class="w-1/2">
                                 <hr>
                             </div>
-
-                            @foreach ($unpaids as $unpaid)
-                                <div class="flex items-center justify-between w-1/2 px-3 bg-yellow-200 mb-1">
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
+                                <div>
+                                    Total Unpaid
+                                </div>
+                                <div class="flex justify-between w-1/3">
                                     <div>
-                                        {{ $unpaid->full_name }} {{ $unpaid->by ? "care off {$unpaid->by}" : "" }}
+                                        ₱
                                     </div>
-                                    <div class="flex justify-between w-1/3">
-                                        <div>
-                                            ₱
-                                        </div>
-                                        <div>
-                                            {{ number_format($unpaid->total, 2, '.', ',') }}
-                                        </div>
+                                    <div>
+                                        <span x-text="getTotalUnpaid()"></span>
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
 
-                            <div class="w-1/2 my-1">
+                            <div class="w-1/2">
                                 <hr>
                             </div>
-                            <div class="flex items-center justify-between w-1/2 px-3">
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
+                                <div>
+                                    Total Purchases
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <span x-text="getTotalPurchase()"></span>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
                                 <div>
                                     Total Sales
                                 </div>
@@ -213,7 +270,7 @@
                                         ₱
                                     </div>
                                     <div>
-                                        <span x-text="numberWithCommas(getTotalSales())"></span>
+                                        <span x-text="getTotalSales()"></span>
                                     </div>
                                 </div>
                             </div>
@@ -221,7 +278,7 @@
                             <div class="w-1/2">
                                 <hr>
                             </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold mb-1">
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
                                 <div>
                                     GCash
                                 </div>
@@ -230,9 +287,7 @@
                                         ₱
                                     </div>
                                     <div>
-                                        {{
-                                            number_format( $gcash, 2, '.', ',')
-                                        }}
+                                        <span x-text="getGcash()"></span>
                                     </div>
                                 </div>
                             </div>
@@ -240,7 +295,7 @@
                             <div class="w-1/2 my-1">
                                 <hr>
                             </div>
-                            <div class="flex items-center justify-between w-1/2 px-3 my-1">
+                            <div class="flex items-center justify-between w-1/2 px-3 py-1">
 
                                 <div>
                                     Cash
@@ -250,13 +305,27 @@
                                         ₱
                                     </div>
                                     <div>
-                                        <x-input type="text" class="text-xs text-right" x-model.number.lazy="remit"></x-input>
+                                        <x-input type="text" class="text-xs text-right" x-model.number="remit"></x-input>
                                     </div>
                                 </div>
                             </div>
 
-
-
+                            <div class="w-1/2">
+                                <hr>
+                            </div>
+                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-green-500 rounded">
+                                <div>
+                                    Total Remittance
+                                </div>
+                                <div class="flex justify-between w-1/3">
+                                    <div>
+                                        ₱
+                                    </div>
+                                    <div>
+                                        <span x-text="getTotalRemittance()"></span>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
 
@@ -272,15 +341,19 @@
 
     function setup() {
         return {
-
             date1: @entangle('date'),
             date2: @entangle('date2'),
             spoilages: @entangle('spoilages').defer,
+            purchases: @entangle('purchases').defer,
             dishes: @entangle('dishes').defer,
-            totalRemittance: @entangle('totalRemittance').defer,
-            remit: @entangle('remit'),
+            remit: @entangle('remit').defer,
             total: @entangle('total'),
             late: @entangle('lateTotal'),
+            gcash: @entangle('gcash'),
+            totalRemittance: @entangle('totalRemittance').defer,
+            totalPurchases: @entangle('totalPurchases').defer,
+            totalUnpaid: @entangle('totalUnpaid').defer,
+            totalSales: @entangle('totalSales').defer,
             init(){
                 this.totalRemittance = 0
             },
@@ -293,10 +366,38 @@
             removeSpoilage(index) {
                 this.spoilages.splice(index, 1)
             },
-            getTotalSales() {
-                return this.total + this.late
+            addPurchase() {
+                this.purchases.push({
+                    'name' : '',
+                    'price' : 0,
+                })
             },
-        };
+            removePurchase(index) {
+                this.purchases.splice(index, 1)
+            },
+            getTotalPurchase(){
+                this.totalPurchases = 0
+                this.purchases.forEach(element => {
+                    this.totalPurchases += element.price
+                });
+
+                return numberWithCommas(this.totalPurchases)
+            },
+            getTotalUnpaid(){
+                return numberWithCommas(this.totalUnpaid)
+            },
+            getTotalSales(){
+                this.totalSales = this.total + this.late - this.totalUnpaid - this.totalPurchases
+                return numberWithCommas(this.totalSales)
+            },
+            getGcash(){
+                return numberWithCommas(this.gcash)
+            },
+            getTotalRemittance(){
+                this.totalRemittance = this.gcash + this.remit
+                return numberWithCommas(this.totalRemittance)
+            },
+        }
     };
 
     function numberWithCommas(x) {
