@@ -49,8 +49,11 @@ class Order extends Model
 
         return $orders->map(function ($item) use ($dishes) {
             $dish_id = $item->first()['dish_id'];
+
+            $dish = $dishes->where('id', $dish_id)->first();
+
             return [
-                'dish_name' => $dishes->where('id', $dish_id)->first()->name,
+                'dish_name' => $dish->name." | ".$dish->properties,
                 'qty' => $item->sum('pcs')
             ];
         })->toArray();

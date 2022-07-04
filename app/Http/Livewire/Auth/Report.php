@@ -80,6 +80,7 @@ class Report extends Component
                 $query->whereRaw('DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
             });
 
+
         $this->total = $orders->sum('total');
         $this->cash = (clone $orders)->wherePaymentType('cash')->sum('total');
         $this->gCash = (clone $orders)->wherePaymentType('gcash')->sum('total');
