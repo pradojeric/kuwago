@@ -339,7 +339,6 @@
                 return numberWithCommas(this.totalUnpaid)
             },
             getTotalSales(){
-                this.totalSales = this.total + this.late - this.totalUnpaid - this.totalPurchases
                 return numberWithCommas(this.totalSales)
             },
             getGcash(){

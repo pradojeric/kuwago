@@ -49,10 +49,11 @@ class Show extends Component
         $this->latePayments = $report->late;
         $this->remit = $report->remitted;
         $this->totalRemittance = $report->total_remittance;
-        $this->gcash = $report->gcash;
+        $this->gcash = $report->gcash ?? 0;
         $this->purchases = $report->purchases;
         $this->totalPurchases = $report->total_purchases;
         $this->totalRemittance = $report->total_remittance;
+        $this->totalSales = $report->total_sales;
 
     }
 
