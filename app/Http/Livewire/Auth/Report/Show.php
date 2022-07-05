@@ -30,9 +30,9 @@ class Show extends Component
     public $totalUnpaid;
     public $totalRemittance;
     public $totalPurchases;
-    public $totalSales;
 
     public $gcash;
+    public $cash;
 
     protected $rules = [
         'remit' => ['required', 'numeric' ,'min:1'],
@@ -47,9 +47,11 @@ class Show extends Component
         $this->totalUnpaid = $report->total_unpaid;
         $this->unpaids = $report->unpaid;
         $this->latePayments = $report->late;
+        $this->lateTotal = $report->late_payments;
         $this->remit = $report->remitted;
         $this->totalRemittance = $report->total_remittance;
         $this->gcash = $report->gcash ?? 0;
+        $this->cash = $report->cash ?? 0;
         $this->purchases = $report->purchases;
         $this->totalPurchases = $report->total_purchases;
         $this->totalRemittance = $report->total_remittance;

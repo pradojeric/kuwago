@@ -30,13 +30,10 @@ class Create extends Component
     public $totalUnpaid;
     public $totalRemittance;
     public $totalPurchases;
-    public $totalSales;
 
     public $gcash;
+    public $cash;
 
-    protected $rules = [
-        'remit' => ['required', 'numeric' ,'min:1'],
-    ];
 
     public function mount()
     {
@@ -76,7 +73,7 @@ class Create extends Component
 
     public function save()
     {
-        $this->validate();
+
 
         DB::beginTransaction();
 
@@ -85,11 +82,11 @@ class Create extends Component
         foreach($this->latePayments as $l) {
             $full_name = $l->full_name;
             $description = $l->by ? "care off {$l->by}" : "";
-            $date = $l->paid_on->format('M d');
+            $date = $l->created_at->format('M d');
             $price = number_format($l->total, 2, '.', ',');
 
             $late[] = [
-                'name' =>  "$full_name - $description ($date)",
+                'name' =>  "$full_name - $description ($date) - {$l->payment_type}",
                 'price' => $price,
             ];
         }
@@ -117,17 +114,18 @@ class Create extends Component
 
         Report::create([
             'date' => $this->date,
-            'remitted' => $this->remit,
+            'remitted' => $this->remit ?? 0,
             'total_unpaid' => $this->totalUnpaid,
             'late_payments' => $this->lateTotal,
             'total_remittance' => $this->totalRemittance,
-            'total_sales' => $this->totalSales,
+            'total_sales' => $this->total,
             'spoilages' => $this->spoilages,
             'late' => $late,
             'unpaid' => $unpaids,
             'total_purchases' => $this->totalPurchases,
             'purchases' => $purchases,
             'gcash' => $this->gcash,
+            'cash' => $this->cash,
         ]);
 
         DB::commit();
@@ -159,6 +157,7 @@ class Create extends Component
         $order = Order::whereDate('paid_on', $this->date);
 
         $this->gcash = (clone $order)->where('payment_type', 'gcash')->sum('total');
+        $this->cash = (clone $order)->where('payment_type', 'cash')->sum('total');
 
         $this->latePayments = Order::with(['orderDetails'])->where(function ($query) {
             $query->whereRaw('DATE(paid_on) != DATE(created_at)');

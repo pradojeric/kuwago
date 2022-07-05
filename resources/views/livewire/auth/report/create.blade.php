@@ -79,11 +79,6 @@
                                 </div>
                             @endforeach
 
-
-
-                        </div>
-
-                        <div class="grid grid-flow-row grid-cols-2 gap-4">
                             <div>
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -124,55 +119,21 @@
                                 </table>
                             </div>
 
-                            <div>
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Purchases</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Price</th>
-                                            <th scope="col" class="relative px-6 py-3">
-                                                <div>
-                                                    <button type="button" class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="addPurchase">+</button>
-                                                </div>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <template x-for="(purchase, index) in purchases" :key="index">
-                                            <tr>
-                                                <td class="whitespace-nowrap text-sm text-gray-900">
-                                                    <x-input type="text" x-model="purchase.name" class="block w-full"></x-input>
-                                                </td>
-                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
-                                                    <x-input type="number" x-model.number="purchase.price" class="block w-full" min=0></x-input>
-                                                </td>
-                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
-                                                    <div>
-                                                        <button type="button" class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="removePurchase(index)">-</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="bg-gray-200 py-3">
-                                            <td class="whitespace-nowrap text-sm text-gray-900 text-right">Total</td>
-                                            <td class="whitespace-nowrap text-sm text-gray-900 text-center"><span x-text="getTotalPurchase()"></span></td>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-
                         </div>
 
-                        <hr class="my-2">
+                        <hr class="my-2 py-2 text-black h-5">
 
-                        <div class="mt-2">
+                        <hr>
+
+                        <div class="px-3 font-bold">
+                            Sales
+                        </div>
+
+                        <hr>
+
+                        <div>
                             @foreach ($overalls as $overall)
-                                <div class="mb-1 flex justify-between w-1/2 px-3">
+                                <div class="mb-1 flex justify-between px-3">
                                     <div>
                                         {{ $overall->name }}
                                     </div>
@@ -188,48 +149,40 @@
                                 </div>
                             @endforeach
 
-                            <div class="w-1/2">
-                                <hr>
-                            </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold mb-1">
-                                <div>
-                                    Total
+                            <hr>
+
+                            <div class="flex items-center justify-between px-3 py-1">
+                                <div class="ml-5">
+                                    Cash
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
                                         ₱
                                     </div>
                                     <div>
-                                        {{
-                                            number_format( $total, 2, '.', ',')
-                                        }}
+                                        <span x-text="getCash()"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            @foreach ($latePayments as $late)
-                                <div class="flex items-center justify-between w-1/2 px-3 mb-1">
+                            <div class="flex justify-between px-3 py-1">
+                                <div class="ml-5">
+                                    GCash
+                                </div>
+                                <div class="flex justify-between w-1/3">
                                     <div>
-                                        {{ $late->full_name }} {{ $late->by ? "care off {$late->by}" : "" }}  ({{$late->paid_on->format('M d')}})
+                                        ₱
                                     </div>
-                                    <div class="flex justify-between w-1/3">
-                                        <div>
-                                            ₱
-                                        </div>
-                                        <div>
-                                            {{ number_format($late->total, 2, '.', ',') }}
-                                        </div>
+                                    <div>
+                                        <span x-text="getGcash()"></span>
                                     </div>
                                 </div>
-                            @endforeach
-
-
-                            <div class="w-1/2">
-                                <hr>
                             </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
-                                <div>
-                                    Total Unpaid
+
+
+                            <div class="flex justify-between px-3 py-1">
+                                <div class="ml-5">
+                                    Receivables
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
@@ -241,27 +194,10 @@
                                 </div>
                             </div>
 
-                            <div class="w-1/2">
-                                <hr>
-                            </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-yellow-300 rounded">
-                                <div>
-                                    Total Purchases
-                                </div>
-                                <div class="flex justify-between w-1/3">
-                                    <div>
-                                        ₱
-                                    </div>
-                                    <div>
-                                        <span x-text="getTotalPurchase()"></span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="w-1/2">
                                 <hr>
-                            </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
+
+                            <div class="flex justify-between font-bold px-3 py-1">
                                 <div>
                                     Total Sales
                                 </div>
@@ -275,47 +211,92 @@
                                 </div>
                             </div>
 
-                            <div class="w-1/2">
-                                <hr>
+                            <hr>
+
+                            @if($latePayments->count() > 0)
+
+                            <div class="px-3 font-bold mt-5">
+                                Paid Receivables
                             </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold py-1">
+
+                                <hr>
+
+                            @foreach ($latePayments as $late)
+                                <div class="flex items-center justify-between px-3 mb-1">
+                                    <div>
+                                        {{ $late->full_name }} {{ $late->by ? "care off {$late->by}" : "" }}  ({{$late->created_at->format('M d')}}) - {{ $late->payment_type }}
+                                    </div>
+                                    <div class="flex justify-between w-1/3">
+                                        <div>
+                                            ₱
+                                        </div>
+                                        <div>
+                                            {{ number_format($late->total, 2, '.', ',') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <hr>
+
+                            <div class="flex justify-between font-bold px-3 py-1">
                                 <div>
-                                    GCash
+                                    Total Paid Receivables
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
                                         ₱
                                     </div>
                                     <div>
-                                        <span x-text="getGcash()"></span>
+                                        <span x-text="getLate()"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="w-1/2 my-1">
-                                <hr>
-                            </div>
-                            <div class="flex items-center justify-between w-1/2 px-3 py-1">
+                            @endif
 
+                            <hr>
+
+                            <div class="flex justify-between font-bold px-3 py-1 mt-5">
                                 <div>
-                                    Cash
+                                    Gross Income
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
                                         ₱
                                     </div>
                                     <div>
-                                        <x-input type="text" class="text-xs text-right" x-model.number="remit"></x-input>
+                                        <span x-text="getGrossIncome()"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="w-1/2">
-                                <hr>
-                            </div>
-                            <div class="flex justify-between w-1/2 px-3 font-bold py-1 bg-green-500 rounded">
+                            <div class="flex justify-between px-3 py-1 mt-5">
                                 <div>
-                                    Total Remittance
+                                    Less: Purchases
+                                </div>
+                                <div>
+                                    <button type="button" class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center" @click="addPurchase">+</button>
+                                </div>
+                            </div>
+
+                            <template x-for="(purchase, index) in purchases" :key="index">
+                                <div class="flex justify-between px-3 py-1">
+                                    <div class="w-1/2 flex items-center space-x-2">
+                                        <button type="button" class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center" @click="removePurchase(index)">-</button>
+                                        <x-input type="text" x-model="purchase.name" class="block w-full"></x-input>
+                                    </div>
+                                    <div>
+                                        <x-input type="number" x-model.number="purchase.price" class="block w-full" min=0></x-input>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <hr class="mt-5">
+
+                            <div class="flex justify-between px-3 font-bold py-1 bg-green-500 rounded">
+                                <div>
+                                    Net Income
                                 </div>
                                 <div class="flex justify-between w-1/3">
                                     <div>
@@ -350,10 +331,11 @@
             total: @entangle('total'),
             late: @entangle('lateTotal'),
             gcash: @entangle('gcash'),
+            cash: @entangle('cash'),
             totalRemittance: @entangle('totalRemittance').defer,
             totalPurchases: @entangle('totalPurchases').defer,
             totalUnpaid: @entangle('totalUnpaid').defer,
-            totalSales: @entangle('totalSales').defer,
+            gross: 0,
             init(){
                 this.totalRemittance = 0
             },
@@ -375,6 +357,9 @@
             removePurchase(index) {
                 this.purchases.splice(index, 1)
             },
+            getLate(){
+                return numberWithCommas(this.late)
+            },
             getTotalPurchase(){
                 this.totalPurchases = 0
                 this.purchases.forEach(element => {
@@ -387,14 +372,25 @@
                 return numberWithCommas(this.totalUnpaid)
             },
             getTotalSales(){
-                this.totalSales = this.total + this.late - this.totalUnpaid - this.totalPurchases
-                return numberWithCommas(this.totalSales)
+                return numberWithCommas(this.total)
+            },
+            getCash(){
+                return numberWithCommas(this.cash);
             },
             getGcash(){
                 return numberWithCommas(this.gcash)
             },
+            getGrossIncome(){
+                this.gross = this.total + this.late
+                return numberWithCommas(this.gross)
+            },
             getTotalRemittance(){
-                this.totalRemittance = this.gcash + this.remit
+                this.totalPurchases = 0
+                this.purchases.forEach(element => {
+                    this.totalPurchases += element.price
+                });
+
+                this.totalRemittance = this.gross - this.totalPurchases
                 return numberWithCommas(this.totalRemittance)
             },
         }
