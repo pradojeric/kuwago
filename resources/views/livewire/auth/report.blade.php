@@ -70,6 +70,9 @@
                                 Order #</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Time</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Dishes</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -101,6 +104,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                                     {{ $order->order_number }}
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
+                                    {{ $order->created_at->format('h:i A') }}
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-900">
                                     <ul class="list-disc">
                                         @foreach ($order->orderDishes() as $item)
@@ -108,6 +114,7 @@
                                         @endforeach
                                     </ul>
                                 </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                                     {{ $order->waiter->full_name }}
                                 </td>
