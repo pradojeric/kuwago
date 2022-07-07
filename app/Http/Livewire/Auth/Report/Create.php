@@ -154,7 +154,8 @@ class Create extends Component
 
         $this->unpaids = Order::where('checked_out', false)->whereDate( 'created_at', $this->date )->get();
 
-        $order = Order::whereDate('paid_on', $this->date);
+        $order = Order::whereDate('created_at', $this->date)
+            ->whereDate('paid_on', $this->date);
 
         $this->gcash = (clone $order)->where('payment_type', 'gcash')->sum('total');
         $this->cash = (clone $order)->where('payment_type', 'cash')->sum('total');
