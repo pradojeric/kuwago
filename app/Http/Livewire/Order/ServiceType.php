@@ -3,9 +3,7 @@
 namespace App\Http\Livewire\Order;
 
 use App\Models\Order;
-use App\Models\Table;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 
 class ServiceType extends Component
 {
