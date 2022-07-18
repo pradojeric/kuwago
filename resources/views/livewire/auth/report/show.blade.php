@@ -198,45 +198,45 @@
 
                             <hr>
 
-                            @if(!empty($latePayments) || $latePayments->count() > 0)
+                            @if(!empty($latePayments) || count($latePayments) > 0)
 
-                            <div class="px-3 font-bold mt-5">
-                                Paid Receivables
-                            </div>
+                                <div class="px-3 font-bold mt-5">
+                                    Paid Receivables
+                                </div>
+
+                                    <hr>
+
+                                @foreach ($latePayments as $late)
+                                    <div class="flex items-center justify-between px-3">
+                                        <div>
+                                            {{ $late['name'] }}
+                                        </div>
+                                        <div class="flex justify-between w-1/3">
+                                            <div>
+                                                ₱
+                                            </div>
+                                            <div>
+                                                {{ $late['price'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
 
                                 <hr>
 
-                            @foreach ($latePayments as $late)
-                                <div class="flex items-center justify-between px-3">
+                                <div class="flex justify-between font-bold px-3 py-1">
                                     <div>
-                                        {{ $late['name'] }}
+                                        Total Paid Receivables
                                     </div>
                                     <div class="flex justify-between w-1/3">
                                         <div>
                                             ₱
                                         </div>
                                         <div>
-                                            {{ $late['price'] }}
+                                            <span x-text="getLate()"></span>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-
-                            <hr>
-
-                            <div class="flex justify-between font-bold px-3 py-1">
-                                <div>
-                                    Total Paid Receivables
-                                </div>
-                                <div class="flex justify-between w-1/3">
-                                    <div>
-                                        ₱
-                                    </div>
-                                    <div>
-                                        <span x-text="getLate()"></span>
-                                    </div>
-                                </div>
-                            </div>
 
                             @endif
 

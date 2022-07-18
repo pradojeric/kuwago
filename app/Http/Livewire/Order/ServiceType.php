@@ -22,10 +22,13 @@ class ServiceType extends Component
 
     public function render()
     {
-        $orders = Order::with(['orderDetails'])->where('checked_out', 0)->get();
+        $orders = Order::with(['orderDetails'])->where('checked_out', 0)->whereDate('created_at', now())->get();
+        $unpaidOrders = Order::with(['orderDetails'])->where('checked_out', 0)->whereDate('created_at', '<>' ,now())->get();
+
 
         return view('livewire.order.service-type', [
             'orders' => $orders,
+            'unpaidOrders' => $unpaidOrders,
         ]);
     }
 }

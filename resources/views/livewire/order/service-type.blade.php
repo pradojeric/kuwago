@@ -23,6 +23,24 @@
                         @endforeach
                     </div>
                 </div>
+
+            </div>
+
+            <div class="w-full shadow-lg rounded-lg mt-5">
+                <div class="py-2 px-4 bg-blue-400 rounded-t-lg flex justify-between items-center">
+                    <strong class="text-white"> {{ __('UNPAID ORDERS') }} </strong>
+
+                </div>
+
+                <div class="p-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                        @foreach ($unpaidOrders as $unpaid)
+
+                            <livewire:order.other-table :order="$unpaid" key="takeOut-{{ $unpaid->id }}" />
+
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
 
