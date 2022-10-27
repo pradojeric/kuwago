@@ -17,7 +17,7 @@
                                 ::class=" selectedCategory == {{ $category->id }} ? 'border-green-500' : '' " />
                         @endforeach
 
-                        {{-- <x-menu-card :img=" asset('icons/Custom.png')" @click="addCustom" category="Custom" /> --}}
+                        <x-menu-card :img=" asset('icons/Custom.png')" @click="addCustom" category="Custom" />
                     </div>
                     <div x-show="isLoading">
                         <div class="flex justify-center items-center mt-3 w-full">
@@ -72,7 +72,7 @@
 
                         </div>
                         <div class="overflow-y-auto border rounded-lg p-1.5 w-full flex-grow">
-                            @if($order)
+                            {{-- @if($order)
                                 @foreach ($oldOrders as $i => $item)
                                     <div class="flex justify-around mb-5 xl:text-sm text-xs" wire:model.defer="oldOrders.{{ $i }}">
                                         <button type="button" class="w-5"
@@ -98,7 +98,7 @@
                                     </div>
                                 @endforeach
 
-                            @endif
+                            @endif --}}
                             <template x-for="(orderedDish, index) in orderedDishes" :key="index">
                                 <div class="flex justify-around mb-5 xl:text-sm text-xs">
                                     <button type="button" class="w-5" @click="removeDish(index)">
@@ -127,11 +127,91 @@
                                 </div>
                             </template>
 
+                            <template x-for="(cd, index) in customDishes" :key="`custom`+index">
+                                <div class="flex justify-around mb-5 xl:text-sm text-xs">
+                                    <button type="button" class="w-5" @click="removeCustom(index)">
+                                        <i class="fa fa-minus-circle text-red-500"></i>
+                                    </button>
+                                    <div class="flex flex-col w-28" >
+                                        <div class="flex flex-col">
+                                            <span x-text="cd.name"></span>
+
+                                            <div class="text-xs">
+                                                <div x-show="cd.note != ''">
+                                                    Note: "<span x-text="cd.description"></span>"
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            X <span x-text="cd.pcs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-end">
+                                        ₱ <span x-text="numberWithCommas(cd.price_per_piece * cd.pcs)"></span>
+                                    </div>
+                                </div>
+                            </template>
+
                         </div>
 
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div x-show="customModal" x-cloak>
+            <x-modal>
+                <x-slot name="header">
+                    Custom Order
+                </x-slot>
+
+                <template x-for="(error, index) in errors" :key="`custom` + index">
+                    <span x-text="error" class="text-red-500 text-xs text-center"></span>
+                </template>
+
+                <div class="flex flex-col px-4">
+                    <x-label for="customDish">{{ __('Dish Name*') }}</x-label>
+                    <x-input type="text" class="w-full" id="customDish" x-model="customDish" required />
+
+                </div>
+                <div class="flex flex-col px-4">
+                    <x-label for="customDescription">{{ __('Dish Description*') }}</x-label>
+                    <x-textarea type="text" class="w-full" id="customDescription" x-model="customDesc"
+                        required />
+
+                </div>
+                <div class="px-4">
+                    <x-label for="type" :value="__('Dish Type*')"></x-label>
+                    <x-select id="type" class="block mt-1 w-full font-medium text-sm" x-model="customType">
+                        <option selected>Select Type</option>
+                        <option value="foods">Foods</option>
+                        <option value="drinks">Drinks</option>
+                        <option value="alcoholic">Alcoholic</option>
+                    </x-select>
+
+                </div>
+                <div class="flex flex-col px-4">
+                    <x-label for="customPrice">{{ __('Dish Price*') }}</x-label>
+                    <x-input type="number" class="w-full" id="customPrice" x-model="customPrice" required />
+
+                </div>
+                <div class="flex flex-col px-4">
+                    <x-label for="customPcs">{{ __('Dish Quantity*') }}</x-label>
+                    <x-input type="number" class="w-full" id="customPcs" x-model="customPcs" required />
+
+                </div>
+
+                <x-slot name="buttons">
+                    <button type="button" @click="confirmCustom"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Add
+                    </button>
+                    <button type="button" @click="cancelCustom"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </x-slot>
+            </x-modal>
         </div>
 
         <div x-show="addOnModal" x-cloak>
@@ -181,7 +261,25 @@
                         </div>
                     </template>
 
-                    <div class="text-center text-sm" x-show="orderedDishes.length < 1">
+                    <template x-for="(cd, index) in customDishes" :key="`rcustom`+index">
+                        <div class="flex justify-between text-sm w-full">
+
+                            <div class="flex flex-col">
+                                <div class="flex flex-col">
+                                    <span x-text="cd.name"></span>
+
+                                </div>
+                                <div class="ml-2">
+                                    X <span x-text="cd.pcs"></span>
+                                </div>
+                            </div>
+                            <div class="flex items-end">
+                                ₱ <span x-text="numberWithCommas(cd.price_per_piece * cd.pcs)"></span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="text-center text-sm" x-show="orderedDishes.length < 1 && customDishes.length < 1">
                         No order Yet
                     </div>
 
@@ -291,6 +389,7 @@
             dishes : @entangle('dishes').defer,
             totalPrice : @entangle('totalPrice').defer,
             orderedDishes: @entangle('orderedDishes').defer,
+            customDishes: @entangle('customDishes').defer,
             cash : @entangle('cash').defer,
             change : @entangle('change').defer,
             full_name: @entangle('fullName').defer,
@@ -299,6 +398,12 @@
             by: @entangle('by').defer,
             addOnModal : false,
             reviewModal : false,
+            customModal: false,
+            customDish : '',
+            customType : '',
+            customDesc : '',
+            customPrice : 0,
+            customPcs : 1,
             confirmedOrder : false,
             isLoading : true,
             selectedAddOns : [],
@@ -355,6 +460,75 @@
                 this.errors = []
 
             },
+            addCustom(){
+                this.customModal = true
+                this.customDish = ''
+                this.customDesc = ''
+                this.customType = ''
+                this.customPrice = 0
+                this.customPcs = 1
+            },
+            confirmCustom(){
+                var errorCustom = 0
+                if(this.customDish == '')
+                {
+                    this.errors['name'] = 'Name is required'
+                    errorCustom += 1
+                }
+
+                if(this.customType == '')
+                {
+                    this.errors['type'] = 'Type is required'
+                    errorCustom += 1
+                }
+
+                if(this.customDesc == '')
+                {
+                    this.errors['description'] = 'Description is required'
+                    errorCustom += 1
+                }
+
+                if(this.customPrice < 1)
+                {
+                    this.errors['price'] = 'Price is required'
+                    errorCustom += 1
+                }
+
+                if(this.customPcs < 1)
+                {
+                    this.errors['quantity'] = 'Quantity is required'
+                    errorCustom += 1
+                }
+
+                if(errorCustom > 0)
+                {
+                    console.log(Object.values(this.errors))
+                    this.errors = Object.values(this.errors)
+                    return
+                }
+
+                this.customDishes.push({
+                    'name' : this.customDish,
+                    'pcs' : this.customPcs,
+                    'description' : this.customDesc,
+                    'price' : (this.customPrice * this.customPcs),
+                    'price_per_piece' : this.customPrice,
+                    // 'type' : this.customType,
+                    // 'printed' : 0,
+                })
+                this.totalPrice += this.customPrice * this.customPcs
+
+                this.cancelCustom()
+            },
+            cancelCustom(){
+                this.customModal = false
+                this.customDish = ''
+                this.customDesc = ''
+                this.customType = ''
+                this.customPrice = 0
+                this.customPcs = 1
+                this.errors = []
+            },
             cancelAddOn(){
                 this.addOnModal = false
                 this.selectedAddOns = []
@@ -363,6 +537,11 @@
                 dish = convertToJSON(this.orderedDishes[index])
                 this.totalPrice -= dish['price'] * dish['quantity']
                 this.orderedDishes.splice(index, 1)
+            },
+            removeCustom(index){
+                custom = this.customDishes[index]
+                this.totalPrice -= custom.price
+                this.customDishes.splice(index, 1)
             },
             reviewOrder() {
                 this.reviewModal = true
@@ -382,7 +561,7 @@
                     return
                 }
 
-                if(this.orderedDishes.length < 1) {
+                if(this.orderedDishes.length < 1 && this.customDishes.length < 1) {
                     this.errors['order'] = "Please add order"
                     return
                 }
@@ -405,8 +584,10 @@
     window.addEventListener('printOrder', event => {
 
         Livewire.emit('close');
+        console.log(event.detail)
         var id = event.detail.orderId;
-        a = window.open('/print-po/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
+        var a = window.open('/print-po/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
+        console.log(a)
         a.screenX = 0;
         a.screenY = 0;
         a.document.title = "Print";

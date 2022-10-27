@@ -38,6 +38,17 @@
                             @endif
                         </li>
                     @endforeach
+
+                    @foreach ($order->customOrderDetails as $details)
+                    <li>
+                        {{ $details->name }} - {{ $details->pcs }} pc/s
+                        @if($details->description == '' || !$details->description)
+                            <div class="ml-5 italic text-sm">
+                                Note: {{ $details->description }}
+                            </div>
+                        @endif
+                    </li>
+                @endforeach
                 </ul>
                 {{-- </a> --}}
 
@@ -71,13 +82,13 @@
 
 <script>
     function print(id){
-        // a = window.open('/print-bill/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
-        // a.screenX = 0;
-        // a.screenY = 0;
-        // a.document.title = "Print";
-        // a.focus();
+        a = window.open('/print-bill/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
+        a.screenX = 0;
+        a.screenY = 0;
+        a.document.title = "Print";
+        a.focus();
         setTimeout(() => {
-            // a.close();
+            a.close();
         }, 1000);
     };
 </script>

@@ -2,13 +2,14 @@
 
 namespace App\Http\Livewire\Auth\Report;
 
+use DB;
 use Carbon\Carbon;
-use Livewire\Component;
-use App\Models\Category;
 use App\Models\Dish;
 use App\Models\Order;
 use App\Models\Report;
-use DB;
+use Livewire\Component;
+use App\Models\Category;
+use App\Services\ReportService;
 
 class Create extends Component
 {
@@ -73,8 +74,6 @@ class Create extends Component
 
     public function save()
     {
-
-
         DB::beginTransaction();
 
         $late = [];
@@ -135,22 +134,23 @@ class Create extends Component
 
     public function render()
     {
-        $this->overalls = Category::with([
-            'dishes' => function ($dish) {
-                $dish->orderBy('name');
-            },
-            'dishes.orderDetails' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
-                });
-            },
-            'dishes.orderDetails.order' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
-                });
-            },
-        ])
-        ->get();
+        // $this->overalls = Category::with([
+        //     'dishes' => function ($dish) {
+        //         $dish->orderBy('name');
+        //     },
+        //     'dishes.orderDetails' => function ($order) {
+        //         $order->when($this->dateType == 'single', function($query){
+        //             $query->whereDate( 'created_at', $this->date );
+        //         });
+        //     },
+        //     'dishes.orderDetails.order' => function ($order) {
+        //         $order->when($this->dateType == 'single', function($query){
+        //             $query->whereDate( 'created_at', $this->date );
+        //         });
+        //     },
+        // ])
+        // ->get();
+        $this->overalls = resolve(ReportService::class)->getOrders($this->date);
 
         $this->unpaids = Order::where('checked_out', false)->whereDate( 'created_at', $this->date )->get();
 
@@ -165,11 +165,12 @@ class Create extends Component
         })->whereDate('paid_on', $this->date)->get();
 
 
-        $this->total = $this->overalls->sum( function ($overall) {
-            return $overall->dishes->sum( function ($dish) {
-                return $dish->orderDetails->sum('price');
-            });
-        });
+        // $this->total = $this->overalls->sum( function ($overall) {
+        //     return $overall->dishes->sum( function ($dish) {
+        //         return $dish->orderDetails->sum('price');
+        //     });
+        // });
+        $this->total = $order->sum('total');
 
         $this->lateTotal = $this->latePayments->sum('total');
         $this->totalUnpaid = $this->unpaids->sum('total');

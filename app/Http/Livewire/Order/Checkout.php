@@ -66,6 +66,15 @@ class Checkout extends Modal
             ];
         }
 
+        foreach ($order->customOrderDetails as $item) {
+
+            $this->orderDetails[] = [
+                'name' => $item->name,
+                'quantity' => $item->pcs,
+                'price' => $item->price,
+            ];
+        }
+
 
         $this->totalPrice = $order->totalPriceWithoutDiscount();
 

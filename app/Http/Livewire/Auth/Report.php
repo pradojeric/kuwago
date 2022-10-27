@@ -11,6 +11,7 @@ use Livewire\Component;
 use App\Models\Category;
 use App\Models\CustomDish;
 use App\Models\OrderDetails;
+use App\Services\ReportService;
 use Livewire\WithPagination;
 
 class Report extends Component
@@ -74,16 +75,16 @@ class Report extends Component
             },
         ])->where('checked_out', 1)
             ->when($this->dateType == 'single', function($query){
-                $query->whereDate('created_at', $this->date);
+                $query->whereDate('paid_on', $this->date);
             })
             ->when($this->dateType == 'range', function($query) {
-                $query->whereRaw('DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
+                $query->whereRaw('DATE(paid_on) BETWEEN ? AND ?', [$this->date, $this->date2]);
             });
-
 
         $this->total = $orders->sum('total');
         $this->cash = (clone $orders)->wherePaymentType('cash')->sum('total');
         $this->gCash = (clone $orders)->wherePaymentType('gcash')->sum('total');
+
 
         $orders = $orders->paginate($this->paginate);
 
@@ -126,30 +127,31 @@ class Report extends Component
                     ]
                 )
                 ->get(),
-            'overalls' => Category::with([
-                'dishes' => function ($dish) {
-                    $dish->orderBy('name');
-                },
-                'dishes.orderDetails' => function ($order) {
-                    $order->when($this->dateType == 'single', function($query){
-                        $query->whereDate( 'created_at', $this->date );
-                    })
-                    ->when($this->dateType == 'range', function($query) {
-                        $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
-                    });
-                },
-                'dishes.orderDetails.order' => function ($order) {
-                    $order->when($this->dateType == 'single', function($query){
-                        $query->whereDate( 'created_at', $this->date );
-                    })
-                    ->when($this->dateType == 'range', function($query) {
-                        $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
-                    });
-                },
-            ])
-            ->get(),
-           'reports' => ReportModel::latest()->paginate($this->paginate),
-           'unpaids' => Order::whereNull('paid_on')->get(),
+            // 'overalls' => Category::with([
+            //     'dishes' => function ($dish) {
+            //         $dish->orderBy('name');
+            //     },
+            //     'dishes.orderDetails' => function ($order) {
+            //         $order->when($this->dateType == 'single', function($query){
+            //             $query->whereDate( 'created_at', $this->date );
+            //         })
+            //         ->when($this->dateType == 'range', function($query) {
+            //             $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
+            //         });
+            //     },
+            //     'dishes.orderDetails.order' => function ($order) {
+            //         $order->when($this->dateType == 'single', function($query){
+            //             $query->whereDate( 'created_at', $this->date );
+            //         })
+            //         ->when($this->dateType == 'range', function($query) {
+            //             $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
+            //         });
+            //     },
+            // ])
+            // ->get(),
+            'overalls' => resolve(ReportService::class)->getOrders($this->date, $this->date2, $this->dateType),
+            'reports' => ReportModel::latest()->paginate($this->paginate),
+            'unpaids' => Order::whereNull('paid_on')->get(),
         ]);
     }
 }

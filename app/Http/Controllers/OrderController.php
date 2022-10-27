@@ -16,6 +16,12 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 class OrderController extends Controller
 {
 
+    public $school_name;
+
+    public function __construct()
+    {
+        $this->school_name = "Universidad de Dagupan";
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -241,79 +247,76 @@ class OrderController extends Controller
     {
         try {
             $date = now()->toDateTimeString();
-
             $items = [];
             foreach ($order->orderDetails as $i) {
-                $items[] = new receiptItem($i->dish->name." X ".$i->pcs, number_format($i->price, 2, '.', ','), number_format($i->getDiscount(), 2, '.', ','));
+                $items[] = new receiptItem($i->dish->name." (". $i->dish->properties .") X ".$i->pcs, number_format($i->price, 2, '.', ','));
             }
 
             foreach ($order->customOrderDetails as $i) {
-                $items[] = new receiptItem($i->name." X ".$i->pcs, number_format($i->price, 2, '.', ','), number_format($i->getDiscount(), 2, '.', ','));
+                $items[] = new receiptItem($i->name." (". $i->description .") X ".$i->pcs, number_format($i->price, 2, '.', ','));
             }
-            $config = Configuration::first();
-            if($order->action == "Dine In")
-                $config_tip = $config->tip.'%';
-            else
-                $config_tip = "";
-            $totalPrice = new receiptItem('Subtotal' , number_format($order->totalPrice(), 2, '.', ','));
-            $serviceCharge = new receiptItem('Service Charge '.$config_tip, number_format($order->serviceCharge(), 2, '.', ','));
-            $discount = new receiptItem('Discount' , $order->discount_option);
-            $totalDiscounted = new receiptItem('Total' , number_format($order->totalPriceWithServiceCharge(), 2, '.', ','));
+
+            $cash = new receiptItem('Cash', number_format($order->cash, 2, '.', ','));
+            $change = new receiptItem('Change', number_format($order->change, 2, '.', ','));
+            $totalPrice = new receiptItem('Total' , number_format($order->totalPriceWithoutDiscount(), 2, '.', ','));
 
             // Enter the share name for your USB printer here
-            // $connector = new WindowsPrintConnector("POS-58");
-            $connector = new WindowsPrintConnector("POS-58-BAR");
-
-            // For Network USB Printer
-            // $profile = CapabilityProfile::load("POS-5890");
-            // $connector = new NetworkPrintConnector('192.168.100.5', 9100);
+            // $connector = new WindowsPrintConnector("POS-58-BAR");
+            $connector = new WindowsPrintConnector("POS-58");
 
             /* Print a "Hello world" receipt" */
             $printer = new Printer($connector);
-            // $printer = new Printer($connector, $profile);
             $printer->initialize();
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-            $printer->text("SABINA\n");
+            $printer->text("CANTEEN\n");
             $printer->selectPrintMode();
-            $printer->text("Leisure Coast Resort\n");
-            $printer->text('Bonuan, Dagupan, 2400 Pangasinan');
+            $printer->text("{$this->school_name}\n");
             $printer->setEmphasis(false);
             $printer->feed();
 
             /* Title of receipt */
-            $length = 60;
+
             $printer->setEmphasis(true);
-            $printer->text("BILL\n");
+            $printer->text("RECEIPT\n");
             $printer->setEmphasis(false);
 
             $printer->setJustification(Printer::JUSTIFY_LEFT);
 
             $printer->feed(2);
 
+            $printer->setFont(Printer::FONT_B);
+
             /* Items */
+            $length = 80;
             foreach ($items as $o) {
                 $printer->text($o->getAsString($length));
             }
             $printer->feed();
 
-            if($order->enable_discount)
-            {
-                $printer->text($discount->getAsString($length));
-            }
-            $printer->text($totalPrice->getAsString($length));
-            $printer->text($serviceCharge->getAsString($length));
-            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-            $printer->text($totalDiscounted->getAsString());
+            /* Tax and total */
+
+
             $printer->selectPrintMode();
+            $printer->text($totalPrice->getAsString($length));
+            $printer->text($cash->getAsString($length));
+            $printer->text($change->getAsString($length));
 
-            $printer->feed(3);
+            $printer->feed(2);
+
+            $printer->setFont(Printer::FONT_A);
+
+
+            /* Footer */
             $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text("This is not the official receipt\n");
+            $printer->feed();
+            $printer->text("-----------------------\n");
             $printer->text($date . "\n");
-            $printer->text("Server: " . $order->waiter->full_name . "\n");
 
             $printer->feed(3);
+
             $printer->cut();
 
             /* Close printer */
@@ -334,6 +337,10 @@ class OrderController extends Controller
                 $items[] = new receiptItem($i->dish->name." (". $i->dish->properties .") X ".$i->pcs, number_format($i->price, 2, '.', ','));
             }
 
+            foreach ($order->customOrderDetails as $i) {
+                $items[] = new receiptItem($i->name." (". $i->description .") X ".$i->pcs, number_format($i->price, 2, '.', ','));
+            }
+
             $cash = new receiptItem('Cash', number_format($order->cash, 2, '.', ','));
             $change = new receiptItem('Change', number_format($order->change, 2, '.', ','));
             $totalPrice = new receiptItem('Total' , number_format($order->totalPriceWithoutDiscount(), 2, '.', ','));
@@ -348,9 +355,9 @@ class OrderController extends Controller
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->setEmphasis(true);
             $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-            $printer->text("KUWAGO\n");
+            $printer->text("CANTEEN\n");
             $printer->selectPrintMode();
-            $printer->text("Unibersidad de Dagupan\n");
+            $printer->text("{$this->school_name}\n");
             $printer->setEmphasis(false);
             $printer->feed();
 

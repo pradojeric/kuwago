@@ -44,6 +44,12 @@ class Order extends Model
     public function orderDishes()
     {
         $orders = $this->orderDetails->groupBy('dish_id');
+        $customs = $this->customOrderDetails->map(function ($item) {
+            return [
+                'dish_name' => $item->name,
+                'qty' => $item->pcs,
+            ];
+        });
 
         $dishes = Dish::all();
 
@@ -56,7 +62,7 @@ class Order extends Model
                 'dish_name' => $dish->name." | ".$dish->properties,
                 'qty' => $item->sum('pcs')
             ];
-        })->toArray();
+        })->concat($customs)->toArray();
 
     }
 
@@ -125,12 +131,12 @@ class Order extends Model
 
     public function totalPriceWithoutDiscount()
     {
-        // $customPrices = $this->customOrderDetails->sum('price');
+        $customPrices = $this->customOrderDetails->sum('price');
         $orderPrices = $this->orderDetails->sum('price');
 
-        // $totalPrice = $orderPrices + $customPrices;
+        $totalPrice = $orderPrices + $customPrices;
 
-        return $orderPrices;
+        return $totalPrice;
     }
 
     // public function totalDiscountedPrice()

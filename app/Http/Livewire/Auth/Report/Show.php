@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Report;
 use Livewire\Component;
 use App\Models\Category;
+use App\Services\ReportService;
 use Illuminate\Support\Facades\DB;
 
 class Show extends Component
@@ -62,33 +63,36 @@ class Show extends Component
 
     public function render()
     {
-        $this->overalls = Category::with([
-            'dishes' => function ($dish) {
-                $dish->orderBy('name');
-            },
-            'dishes.orderDetails' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
-                });
-            },
-            'dishes.orderDetails.order' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
-                });
-            },
-        ])
-        ->get();
+        // $this->overalls = Category::with([
+        //     'dishes' => function ($dish) {
+        //         $dish->orderBy('name');
+        //     },
+        //     'dishes.orderDetails' => function ($order) {
+        //         $order->when($this->dateType == 'single', function($query){
+        //             $query->whereDate( 'created_at', $this->date );
+        //         });
+        //     },
+        //     'dishes.orderDetails.order' => function ($order) {
+        //         $order->when($this->dateType == 'single', function($query){
+        //             $query->whereDate( 'created_at', $this->date );
+        //         });
+        //     },
+        // ])
+        // ->get();
 
         // $this->unpaids = Order::where('checked_out', false)->get();
 
         // $this->latePayments = Order::whereDate('paid_on', $this->date)->get();
 
+        $this->overalls = resolve(ReportService::class)->getOrders($this->date);
 
-        $this->total = $this->overalls->sum( function ($overall) {
-            return $overall->dishes->sum( function ($dish) {
-                return $dish->orderDetails->sum('price');
-            });
-        });
+
+        // $this->total = $this->overalls->sum( function ($overall) {
+        //     return $overall->dishes->sum( function ($dish) {
+        //         return $dish->orderDetails->sum('price');
+        //     });
+        // });
+        $this->total = $this->totalSales;
 
         return view('livewire.auth.report.show');
     }

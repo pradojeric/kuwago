@@ -29,7 +29,7 @@
                                 <div>
                                     <span class="uppercase">
 
-                                        {{ $overall->name }}
+                                        {{ $overall['name'] }}
                                     </span>
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
@@ -45,19 +45,19 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @foreach ($overall->dishes as $dish)
+                                            @foreach ($overall['dishes'] as $dish)
                                                 <tr>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {{ $dish->name }}
+                                                        {{ $dish['name'] }}
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                                        {{ $dish->properties }}
+                                                        {{ $dish['properties'] }}
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                                        {{ $dish->orderDetails->sum('pcs') }}
+                                                        {{ $dish['pcs'] }}
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                                        {{ '₱ '. number_format($dish->orderDetails->sum('price'), 2, '.', ',') }}
+                                                        {{ '₱ '. number_format($dish['price'], 2, '.', ',') }}
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -67,7 +67,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap">Total</td>
                                                 <td></td>
                                                 <td></td>
-                                                <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall['sum'] , 2, '.', ',') }}</td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -120,14 +120,14 @@
                             @foreach ($overalls as $overall)
                                 <div class="mb-1 flex justify-between px-3">
                                     <div>
-                                        {{ $overall->name }}
+                                        {{ $overall['name'] }}
                                     </div>
                                     <div class='flex justify-between w-1/3'>
                                         <div>
                                             ₱
                                         </div>
                                         <div>
-                                            {{number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}
+                                            {{number_format( $overall['sum'] , 2, '.', ',') }}
                                         </div>
                                     </div>
 

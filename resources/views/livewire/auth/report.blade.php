@@ -110,7 +110,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-900">
                                     <ul class="list-disc">
                                         @foreach ($order->orderDishes() as $item)
-                                        <li class="text-xs">{{ $item['dish_name'] }} ({{ $item['qty'] }})</li>
+                                            <li class="text-xs">{{ $item['dish_name'] }} ({{ $item['qty'] }})</li>
                                         @endforeach
                                     </ul>
                                 </td>
@@ -258,22 +258,22 @@
                     <div class="font-bold text-lg">
 
                         <div>
-                            Total Sales:
+                            Total Sales: {{ "P ". number_format($total, 2, '.',',') }}
                         </div>
                         <div>
-                            {{ '₱ '.
+                            {{-- {{ '₱ '.
                             number_format( $overalls->sum( function ($overall) {
                                 return $overall->dishes->sum( function ($dish) {
                                     return $dish->orderDetails->sum('price');
                                 });
                             }), 2, '.', ',')
-                        }}
+                        }} --}}
                         </div>
                     </div>
 
                     @foreach ($overalls as $overall)
                     <div>
-                        <span class="uppercase">
+                        {{-- <span class="uppercase">
 
                             {{ $overall->name }}
                         </span>
@@ -314,6 +314,49 @@
                                     <td></td>
                                     <td></td>
                                     <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}</td>
+                                </tr>
+                            </tfoot>
+                        </table> --}}
+                        <span class="uppercase">
+                            {{ $overall['name'] }}
+                        </span>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Item</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4"></th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Quantity</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($overall['dishes'] as $dish)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $dish['name'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                            {{ $dish['properties'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                            {{ $dish['pcs'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                            {{ '₱ '. number_format($dish['price'], 2, '.', ',') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="bg-gray-50">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">Total</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall['sum'] , 2, '.', ',') }}</td>
                                 </tr>
                             </tfoot>
                         </table>

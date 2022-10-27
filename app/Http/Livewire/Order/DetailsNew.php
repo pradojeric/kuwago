@@ -18,6 +18,7 @@ class DetailsNew extends Component
     public $categories;
     public $dishes;
     public $orderedDishes = [];
+    public $customDishes = [];
     public $selectedCategory = 1;
     public $paymentType = 'cash';
     public $totalPrice = 0;
@@ -27,6 +28,7 @@ class DetailsNew extends Component
     public $by = '';
 
     public $oldOrders = [];
+    public $oldCustomOrders = [];
     public $order;
 
     public $fullName = '';
@@ -90,6 +92,10 @@ class DetailsNew extends Component
                         'printed' => 0,
                     ]);
 
+                }
+
+                if (count($this->customDishes) > 0) {
+                    $this->order->customOrderDetails()->createMany($this->customDishes);
                 }
 
                 $this->config->increment('order_no');
