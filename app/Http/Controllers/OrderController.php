@@ -264,60 +264,64 @@ class OrderController extends Controller
             // $connector = new WindowsPrintConnector("POS-58-BAR");
             $connector = new WindowsPrintConnector("POS-58");
 
-            /* Print a "Hello world" receipt" */
-            $printer = new Printer($connector);
-            $printer->initialize();
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->setEmphasis(true);
-            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-            $printer->text("CANTEEN\n");
-            $printer->selectPrintMode();
-            $printer->text("{$this->school_name}\n");
-            $printer->setEmphasis(false);
-            $printer->feed();
+            for($i = 0; $i < 2; $i++)
+            {
 
-            /* Title of receipt */
+                /* Print a "Hello world" receipt" */
+                $printer = new Printer($connector);
+                $printer->initialize();
+                $printer->setJustification(Printer::JUSTIFY_CENTER);
+                $printer->setEmphasis(true);
+                $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
+                $printer->text("CANTEEN\n");
+                $printer->selectPrintMode();
+                $printer->text("{$this->school_name}\n");
+                $printer->setEmphasis(false);
+                $printer->feed();
 
-            $printer->setEmphasis(true);
-            $printer->text("RECEIPT\n");
-            $printer->setEmphasis(false);
+                /* Title of receipt */
 
-            $printer->setJustification(Printer::JUSTIFY_LEFT);
+                $printer->setEmphasis(true);
+                $printer->text("RECEIPT\n");
+                $printer->setEmphasis(false);
 
-            $printer->feed(2);
+                $printer->setJustification(Printer::JUSTIFY_LEFT);
 
-            $printer->setFont(Printer::FONT_B);
+                $printer->feed(2);
 
-            /* Items */
-            $length = 80;
-            foreach ($items as $o) {
-                $printer->text($o->getAsString($length));
+                $printer->setFont(Printer::FONT_B);
+
+                /* Items */
+                $length = 80;
+                foreach ($items as $o) {
+                    $printer->text($o->getAsString($length));
+                }
+                $printer->feed();
+
+                /* Tax and total */
+
+
+                $printer->selectPrintMode();
+                $printer->text($totalPrice->getAsString($length));
+                $printer->text($cash->getAsString($length));
+                $printer->text($change->getAsString($length));
+
+                $printer->feed(2);
+
+                $printer->setFont(Printer::FONT_A);
+
+
+                /* Footer */
+                $printer->setJustification(Printer::JUSTIFY_CENTER);
+                $printer->text("This is not the official receipt\n");
+                $printer->feed();
+                $printer->text("-----------------------\n");
+                $printer->text($date . "\n");
+
+                $printer->feed(3);
+
+                $printer->cut();
             }
-            $printer->feed();
-
-            /* Tax and total */
-
-
-            $printer->selectPrintMode();
-            $printer->text($totalPrice->getAsString($length));
-            $printer->text($cash->getAsString($length));
-            $printer->text($change->getAsString($length));
-
-            $printer->feed(2);
-
-            $printer->setFont(Printer::FONT_A);
-
-
-            /* Footer */
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->text("This is not the official receipt\n");
-            $printer->feed();
-            $printer->text("-----------------------\n");
-            $printer->text($date . "\n");
-
-            $printer->feed(3);
-
-            $printer->cut();
 
             /* Close printer */
             $printer->close();
