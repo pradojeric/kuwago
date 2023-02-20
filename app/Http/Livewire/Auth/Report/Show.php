@@ -30,12 +30,13 @@ class Show extends Component
     public $totalUnpaid;
     public $totalRemittance;
     public $totalPurchases;
+    public $totalDiscount;
 
     public $gcash;
     public $cash;
 
     protected $rules = [
-        'remit' => ['required', 'numeric' ,'min:1'],
+        'remit' => ['required', 'numeric', 'min:1'],
     ];
 
     public function mount(Report $report)
@@ -55,8 +56,7 @@ class Show extends Component
         $this->purchases = $report->purchases;
         $this->totalPurchases = $report->total_purchases;
         $this->totalRemittance = $report->total_remittance;
-        $this->totalSales = $report->total_sales;
-
+        $this->totalDiscount = $report->total_discount;
     }
 
 
@@ -67,25 +67,25 @@ class Show extends Component
                 $dish->orderBy('name');
             },
             'dishes.orderDetails' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
+                $order->when($this->dateType == 'single', function ($query) {
+                    $query->whereDate('created_at', $this->date);
                 });
             },
             'dishes.orderDetails.order' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
+                $order->when($this->dateType == 'single', function ($query) {
+                    $query->whereDate('created_at', $this->date);
                 });
             },
         ])
-        ->get();
+            ->get();
 
         // $this->unpaids = Order::where('checked_out', false)->get();
 
         // $this->latePayments = Order::whereDate('paid_on', $this->date)->get();
 
 
-        $this->total = $this->overalls->sum( function ($overall) {
-            return $overall->dishes->sum( function ($dish) {
+        $this->total = $this->overalls->sum(function ($overall) {
+            return $overall->dishes->sum(function ($dish) {
                 return $dish->orderDetails->sum('price');
             });
         });

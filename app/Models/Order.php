@@ -53,11 +53,11 @@ class Order extends Model
             $dish = $dishes->where('id', $dish_id)->first();
 
             return [
-                'dish_name' => $dish->name." | ".$dish->properties,
-                'qty' => $item->sum('pcs')
+                'dish_name' => $dish->name . " | " . $dish->properties,
+                'qty' => $item->sum('pcs'),
+                'discounted' => $item->contains('discount', 1)
             ];
         })->toArray();
-
     }
 
     public function waiter()

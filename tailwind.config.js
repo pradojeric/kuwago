@@ -1,25 +1,17 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
-
 module.exports = {
-    purge: [
+    content: [
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
+        "./node_modules/flowbite/**/*.js",
     ],
-
     theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
-            },
-        },
+        extend: {},
     },
-
-    variants: {
-        extend: {
-            opacity: ['disabled'],
-        },
-    },
-
-    plugins: [require('@tailwindcss/forms')],
+    plugins: [
+        require("@tailwindcss/forms"),
+        require("@tailwindcss/typography"),
+        require("flowbite/plugin"),
+        require("tailwind-scrollbar"),
+    ],
 };

@@ -122,7 +122,7 @@
                                         </div>
                                     </div>
                                     <div class="flex items-end">
-                                        ₱ <span x-text="numberWithCommas(orderedDish.price * orderedDish.quantity)"></span>
+                                        ₱ <span x-text="numberWithCommas((orderedDish.new_price ?? orderedDish.price) * orderedDish.quantity)"></span>
                                     </div>
                                 </div>
                             </template>
@@ -137,8 +137,17 @@
         <div x-show="addOnModal" x-cloak>
             <x-modal>
                 <x-slot name="header">
-                    <span x-text="selectedDish.name + ' x ' +selectedDish.quantity" />
+                    <span x-text="selectedDish.name + ' x ' +selectedDish.quantity + ' = ₱ ' + numberWithCommas((selectedDish.new_price ?? selectedDish.price) * selectedDish.quantity)" />
                 </x-slot>
+
+                <div class="">
+                    Apply discount? <input type="checkbox" x-model="selectedDish.enable_discount" value="1">
+                    <div x-show="selectedDish.enable_discount" class="mt-2">
+                        New Price of item
+                        <x-input type="number" x-model.number="selectedDish.new_price"></x-input>
+                    </div>
+                </div>
+
                 <div class="px-4 pb-4 sm:p-6 sm:pb-4 flex flex-col">
                     <span class="text-base font-medium">Add Note</span>
                     <x-textarea class="w-full" x-model="note"></x-textarea>
@@ -176,7 +185,7 @@
                                 </div>
                             </div>
                             <div class="flex items-end">
-                                ₱ <span x-text="numberWithCommas(orderedDish.price * orderedDish.quantity)"></span>
+                                ₱ <span x-text="numberWithCommas((orderedDish.new_price ?? orderedDish.price) * orderedDish.quantity)"></span>
                             </div>
                         </div>
                     </template>
@@ -338,7 +347,7 @@
                 this.orderedDishes.forEach( (item, index, arr) => {
                     parsed = convertToJSON(item)
 
-                    if( this.selectedDish['id'] == parsed['id'] && this.selectedDish['note'] == parsed['note'] ) {
+                    if( this.selectedDish['id'] == parsed['id'] && this.selectedDish['note'] == parsed['note'] && this.selectedDish['new_price'] == parsed['new_price'] ) {
 
                         arr[index]['quantity'] += dish['quantity']
                         same = true
@@ -348,7 +357,7 @@
                 if(!same)
                     this.orderedDishes.push(convertToJSON(this.selectedDish))
 
-                this.totalPrice += this.selectedDish['price'] * this.selectedDish['quantity']
+                this.totalPrice += (this.selectedDish['new_price'] ?? this.selectedDish['price']) * this.selectedDish['quantity']
                 this.selectedDish = false
                 this.addOnModal = false
                 this.note = ''

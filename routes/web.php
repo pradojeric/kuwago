@@ -38,10 +38,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/test', function() {
+Route::get('/test', function () {
     return Category::with(['dishes.orderDetails.order' => function ($order) {
         $order->whereDate('orders.created_at', date('Y-m-d'));
-
     }])->get();
 });
 

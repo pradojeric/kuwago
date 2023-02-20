@@ -7,9 +7,11 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <a type="button" href="{{ route('admin.dishes.create') }}"
-                class="bg-green-500 hover:bg-green-700 py-2 px-3 rounded shadow-sm mb-5 text-white">Add
-                Dish</a>
+            <div class="mb-5">
+                <a type="button" href="{{ route('admin.dishes.create') }}"
+                    class="bg-green-500 hover:bg-green-700 py-2 px-3 rounded shadow-sm text-white">Add
+                    Dish</a>
+            </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="flex flex-col">
@@ -26,5 +28,3 @@
     </div>
 
 </x-app-layout>
-
-

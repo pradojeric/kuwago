@@ -12,6 +12,10 @@ class Dish extends Model
 
     protected $guarded = [];
 
+    protected $appends = [
+        'price_formatted'
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -20,6 +24,19 @@ class Dish extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetails::class);
+    }
+
+    //for reporting purposes
+    public function getTotalSales()
+    {
+        return $this->orderDetails->sum('price');
+    }
+
+    public function getTotalDiscount()
+    {
+        return $this->orderDetails->sum(function ($detail) {
+            return $detail->orig_price ?? $detail->price;
+        }) - $this->getTotalSales();
     }
 
     public function scopeActive($query)

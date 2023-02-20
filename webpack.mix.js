@@ -1,5 +1,4 @@
-const mix = require('laravel-mix');
-
+const mix = require("laravel-mix");
 
 /*
  |--------------------------------------------------------------------------
@@ -13,11 +12,12 @@ const mix = require('laravel-mix');
  */
 mix.setResourceRoot("../");
 
-mix.js('resources/js/app.js', 'public/js').postCss('resources/css/app.css', 'public/css', [
-    require('postcss-import'),
-    require('tailwindcss'),
-    require('autoprefixer'),
-])
-.options({
-    processCssUrls: true,
-});
+mix.js("resources/js/app.js", "public/js")
+    .postCss("resources/css/app.css", "public/css", [
+        require("postcss-import"),
+        require("tailwindcss"),
+        require("autoprefixer"),
+    ])
+    .options({
+        processCssUrls: true,
+    });

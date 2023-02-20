@@ -36,15 +36,11 @@ class Report extends Component
 
     public function updatedDateType($value)
     {
-
-        if($value == 'range')
-        {
+        if ($value == 'range') {
             $this->tempDate = $this->date;
             $this->date = Carbon::parse($this->date)->startOfMonth()->toDateString();
             $this->date2 = Carbon::parse($this->date)->endOfMonth()->toDateString();
-
-        }else
-        {
+        } else {
             $this->date = $this->tempDate;
             $this->date2 = "";
         }
@@ -66,17 +62,24 @@ class Report extends Component
         $this->resetPage();
     }
 
+    public function delete(Order $order)
+    {
+        //
+        $order->orderDetails()->delete();
+        $order->delete();
+    }
+
     public function render()
     {
         $orders =  Order::with([
-            'waiter' => function($query){
+            'waiter' => function ($query) {
                 $query->withTrashed();
             },
         ])->where('checked_out', 1)
-            ->when($this->dateType == 'single', function($query){
+            ->when($this->dateType == 'single', function ($query) {
                 $query->whereDate('created_at', $this->date);
             })
-            ->when($this->dateType == 'range', function($query) {
+            ->when($this->dateType == 'range', function ($query) {
                 $query->whereRaw('DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
             });
 
@@ -93,63 +96,51 @@ class Report extends Component
                 ->leftJoin('orders', 'orders.id', 'order_details.order_id')
                 ->selectRaw('dishes.name, dishes.properties, SUM(pcs) as quantity')
                 ->groupBy('dishes.name', 'dishes.properties')
-                ->when($this->dateType == 'single', function($query){
+                ->when($this->dateType == 'single', function ($query) {
                     $query->whereDate('orders.created_at', $this->date);
                 })
-                ->when($this->dateType == 'range', function($query) {
+                ->when($this->dateType == 'range', function ($query) {
                     $query->whereRaw('DATE(orders.created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
                 })
                 ->orderBy('name')
                 ->get(),
-            'waiters' => User::
-                // whereHas('role', function ($role) {
-                //     $role->where('name', 'waiter');
-                // })
-                // ->
-                with([
-                    'cancelled' => function ($cancel) {
-                        $cancel->when($this->dateType == 'single', function($query){
-                                $query->whereDate('cancels.created_at', $this->date);
-                            })
-                            ->when($this->dateType == 'range', function($query) {
-                                $query->whereRaw('DATE(cancels.created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
-                            });
-                        },
-                    'orders' => function($order) {
-                        $order->when($this->dateType == 'single', function($query){
-                            $query->whereDate('orders.created_at', $this->date);
-                        })
-                        ->when($this->dateType == 'range', function($query) {
-                            $query->whereRaw('DATE(orders.created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
-                        });
-                    }
-                    ]
-                )
-                ->get(),
+            'waiters' => User::with([
+                'cancelled' => function ($cancel) {
+                    $cancel->when($this->dateType == 'single', function ($query) {
+                        $query->whereDate('cancels.created_at', $this->date);
+                    })->when($this->dateType == 'range', function ($query) {
+                        $query->whereRaw('DATE(cancels.created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
+                    });
+                },
+                'orders' => function ($order) {
+                    $order->when($this->dateType == 'single', function ($query) {
+                        $query->whereDate('orders.created_at', $this->date);
+                    })->when($this->dateType == 'range', function ($query) {
+                        $query->whereRaw('DATE(orders.created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
+                    });
+                }
+            ])->get(),
             'overalls' => Category::with([
                 'dishes' => function ($dish) {
                     $dish->orderBy('name');
                 },
                 'dishes.orderDetails' => function ($order) {
-                    $order->when($this->dateType == 'single', function($query){
-                        $query->whereDate( 'created_at', $this->date );
-                    })
-                    ->when($this->dateType == 'range', function($query) {
-                        $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
+                    $order->when($this->dateType == 'single', function ($query) {
+                        $query->whereDate('created_at', $this->date);
+                    })->when($this->dateType == 'range', function ($query) {
+                        $query->whereRaw('DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
                     });
                 },
                 'dishes.orderDetails.order' => function ($order) {
-                    $order->when($this->dateType == 'single', function($query){
-                        $query->whereDate( 'created_at', $this->date );
-                    })
-                    ->when($this->dateType == 'range', function($query) {
-                        $query->whereRaw( 'DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2] );
+                    $order->when($this->dateType == 'single', function ($query) {
+                        $query->whereDate('created_at', $this->date);
+                    })->when($this->dateType == 'range', function ($query) {
+                        $query->whereRaw('DATE(created_at) BETWEEN ? AND ?', [$this->date, $this->date2]);
                     });
                 },
-            ])
-            ->get(),
-           'reports' => ReportModel::latest()->paginate($this->paginate),
-           'unpaids' => Order::whereNull('paid_on')->get(),
+            ])->get(),
+            'reports' => ReportModel::latest()->paginate($this->paginate),
+            'unpaids' => Order::whereNull('paid_on')->get(),
         ]);
     }
 }

@@ -8,7 +8,8 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="flex-shrink-0 flex items-center focus:border-transparent" onclick="event.preventDefault();
+                        <button class="flex-shrink-0 flex items-center focus:border-transparent"
+                            onclick="event.preventDefault();
                             this.closest('form').submit();">
                             <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />
                             <span class="ml-2 uppercase font-bold">
@@ -24,10 +25,6 @@
                 <div class="text-right">
                     <div class="font-extrabold uppercase">
                         {{ Auth::user()->full_name }} | {{ Auth::user()->employee_no }}
-                    </div>
-                    <div class="font-medium text-sm text-gray-500">
-                        {{-- {{ now()->format('h:i:s a | F d, Y') }} --}}
-                        @livewire('clock')
                     </div>
                     @can('manage')
                         <div class="text-xs underline text-purple-500">

@@ -39,39 +39,55 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Item</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                                    Item</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4"></th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                                </th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Quantity</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Quantity</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Discount</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Total</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($overall->dishes as $dish)
                                                 <tr>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td class="px-2 py-4 text-sm text-gray-900">
                                                         {{ $dish->name }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <td class="px-2 py-4 text-sm text-gray-900 text-center">
                                                         {{ $dish->properties }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <td
+                                                        class="px-2 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                                         {{ $dish->orderDetails->sum('pcs') }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                                        {{ '₱ '. number_format($dish->orderDetails->sum('price'), 2, '.', ',') }}
+                                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right">
+                                                        ({{ '₱ ' . number_format($dish->getTotalDiscount(), 2, '.', ',') }})
+                                                    </td>
+                                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right">
+                                                        {{ '₱ ' . number_format($dish->getTotalSales(), 2, '.', ',') }}
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot class="bg-gray-50">
                                             <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap">Total</td>
+                                                <td class="px-2 py-4 whitespace-nowrap">Total</td>
                                                 <td></td>
                                                 <td></td>
-                                                <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}</td>
+                                                <td class="px-2 py-4 whitespace-nowrap text-red-500 text-sm text-right">
+                                                    ({{ '₱ ' .number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalDiscount();}),2,'.',',') }})
+                                                </td>
+                                                <td class="px-2 py-4 whitespace-nowrap font-bold text-lg text-right">
+                                                    {{ '₱ ' .number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalSales();}),2,'.',',') }}
+                                                </td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -84,12 +100,16 @@
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Spoilage</th>
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">
+                                                Spoilage</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">Quantity</th>
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">
+                                                Quantity</th>
                                             <th scope="col" class="relative px-6 py-3">
                                                 <div>
-                                                    <button type="button" class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="addSpoilage">+</button>
+                                                    <button type="button"
+                                                        class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-10 w-10 items-center"
+                                                        @click="addSpoilage">+</button>
                                                 </div>
                                             </th>
                                         </tr>
@@ -101,16 +121,20 @@
                                                     <x-select x-model="spoil.dish" class="w-full block">
                                                         <option value=" " hidden>Select</option>
                                                         <template x-for="(dish, i) in dishes" :key="i">
-                                                            <option :value="dish.name +` | `+dish.properties" x-text="dish.name + ` | ` + dish.properties"></option>
+                                                            <option :value="dish.name + ` | ` + dish.properties"
+                                                                x-text="dish.name + ` | ` + dish.properties"></option>
                                                         </template>
                                                     </x-select>
                                                 </td>
                                                 <td class="whitespace-nowrap text-sm text-gray-900 text-center">
-                                                    <x-input type="text" x-model="spoil.quantity" class=" w-20"></x-input>
+                                                    <x-input type="text" x-model="spoil.quantity" class=" w-20">
+                                                    </x-input>
                                                 </td>
                                                 <td class="whitespace-nowrap text-sm text-gray-900 text-center">
                                                     <div>
-                                                        <button type="button" class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-10 w-10 items-center" @click="removeSpoilage(index)">-</button>
+                                                        <button type="button"
+                                                            class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-10 w-10 items-center"
+                                                            @click="removeSpoilage(index)">-</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -122,6 +146,28 @@
                         </div>
 
                         <hr class="my-2 py-2 text-black h-5">
+
+
+                        <div class="mb-1 flex justify-between px-3">
+                            <div class="font-bold">
+                                Total Discount
+                            </div>
+                            <div class='flex justify-between w-1/3'>
+                                <div>
+                                    ₱
+                                </div>
+                                <div class="text-red-500">
+                                    ({{ number_format($totalDiscount, 2, '.', ',') }})
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <div>
+
+                        </div>
 
                         <hr>
 
@@ -142,7 +188,7 @@
                                             ₱
                                         </div>
                                         <div>
-                                            {{number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}
+                                            {{ number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalSales();}),2,'.',',') }}
                                         </div>
                                     </div>
 
@@ -195,7 +241,7 @@
                             </div>
 
 
-                                <hr>
+                            <hr>
 
                             <div class="flex justify-between font-bold px-3 py-1">
                                 <div>
@@ -213,45 +259,47 @@
 
                             <hr>
 
-                            @if($latePayments->count() > 0)
+                            @if ($latePayments->count() > 0)
 
-                            <div class="px-3 font-bold mt-5">
-                                Paid Receivables
-                            </div>
+                                <div class="px-3 font-bold mt-5">
+                                    Paid Receivables
+                                </div>
 
                                 <hr>
 
-                            @foreach ($latePayments as $late)
-                                <div class="flex items-center justify-between px-3 mb-1">
+                                @foreach ($latePayments as $late)
+                                    <div class="flex items-center justify-between px-3 mb-1">
+                                        <div>
+                                            {{ $late->full_name }} {{ $late->by ? "care off {$late->by}" : '' }}
+                                            ({{ $late->created_at->format('M d') }})
+                                            - {{ $late->payment_type }}
+                                        </div>
+                                        <div class="flex justify-between w-1/3">
+                                            <div>
+                                                ₱
+                                            </div>
+                                            <div>
+                                                {{ number_format($late->total, 2, '.', ',') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                <hr>
+
+                                <div class="flex justify-between font-bold px-3 py-1">
                                     <div>
-                                        {{ $late->full_name }} {{ $late->by ? "care off {$late->by}" : "" }}  ({{$late->created_at->format('M d')}}) - {{ $late->payment_type }}
+                                        Total Paid Receivables
                                     </div>
                                     <div class="flex justify-between w-1/3">
                                         <div>
                                             ₱
                                         </div>
                                         <div>
-                                            {{ number_format($late->total, 2, '.', ',') }}
+                                            <span x-text="getLate()"></span>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-
-                            <hr>
-
-                            <div class="flex justify-between font-bold px-3 py-1">
-                                <div>
-                                    Total Paid Receivables
-                                </div>
-                                <div class="flex justify-between w-1/3">
-                                    <div>
-                                        ₱
-                                    </div>
-                                    <div>
-                                        <span x-text="getLate()"></span>
-                                    </div>
-                                </div>
-                            </div>
 
                             @endif
 
@@ -276,18 +324,24 @@
                                     Less: Purchases
                                 </div>
                                 <div>
-                                    <button type="button" class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center" @click="addPurchase">+</button>
+                                    <button type="button"
+                                        class="bg-green-500 hover:bg-green-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center"
+                                        @click="addPurchase">+</button>
                                 </div>
                             </div>
 
                             <template x-for="(purchase, index) in purchases" :key="index">
                                 <div class="flex justify-between px-3 py-1">
                                     <div class="w-1/2 flex items-center space-x-2">
-                                        <button type="button" class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center" @click="removePurchase(index)">-</button>
-                                        <x-input type="text" x-model="purchase.name" class="block w-full"></x-input>
+                                        <button type="button"
+                                            class="bg-red-500 hover:bg-red-300 text-white rounded shadow-sm h-5 w-5 flex justify-center items-center"
+                                            @click="removePurchase(index)">-</button>
+                                        <x-input type="text" x-model="purchase.name" class="block w-full">
+                                        </x-input>
                                     </div>
                                     <div>
-                                        <x-input type="number" x-model.number="purchase.price" class="block w-full" min=0></x-input>
+                                        <x-input type="number" x-model.number="purchase.price" class="block w-full"
+                                            min=0></x-input>
                                     </div>
                                 </div>
                             </template>
@@ -319,7 +373,6 @@
 
 
 <script>
-
     function setup() {
         return {
             date1: @entangle('date'),
@@ -336,12 +389,12 @@
             totalPurchases: @entangle('totalPurchases').defer,
             totalUnpaid: @entangle('totalUnpaid').defer,
             gross: 0,
-            init(){
+            init() {
                 this.totalRemittance = 0
             },
             addSpoilage() {
                 this.spoilages.push({
-                    'dish' : '',
+                    'dish': '',
                     'quantity': 1,
                 })
             },
@@ -350,17 +403,17 @@
             },
             addPurchase() {
                 this.purchases.push({
-                    'name' : '',
-                    'price' : 0,
+                    'name': '',
+                    'price': 0,
                 })
             },
             removePurchase(index) {
                 this.purchases.splice(index, 1)
             },
-            getLate(){
+            getLate() {
                 return numberWithCommas(this.late)
             },
-            getTotalPurchase(){
+            getTotalPurchase() {
                 this.totalPurchases = 0
                 this.purchases.forEach(element => {
                     this.totalPurchases += element.price
@@ -368,23 +421,23 @@
 
                 return numberWithCommas(this.totalPurchases)
             },
-            getTotalUnpaid(){
+            getTotalUnpaid() {
                 return numberWithCommas(this.totalUnpaid)
             },
-            getTotalSales(){
+            getTotalSales() {
                 return numberWithCommas(this.total)
             },
-            getCash(){
+            getCash() {
                 return numberWithCommas(this.cash);
             },
-            getGcash(){
+            getGcash() {
                 return numberWithCommas(this.gcash)
             },
-            getGrossIncome(){
+            getGrossIncome() {
                 this.gross = this.total + this.late
                 return numberWithCommas(this.gross)
             },
-            getTotalRemittance(){
+            getTotalRemittance() {
                 this.totalPurchases = 0
                 this.purchases.forEach(element => {
                     this.totalPurchases += element.price
@@ -399,5 +452,4 @@
     function numberWithCommas(x) {
         return x.toFixed(2).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     }
-
 </script>

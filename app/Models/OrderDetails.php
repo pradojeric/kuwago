@@ -38,8 +38,8 @@ class OrderDetails extends Model
 
     public function scopeDrinks($query)
     {
-        return $query->whereHas('dish', function ($dish){
-            $dish->whereHas('category', function($category){
+        return $query->whereHas('dish', function ($dish) {
+            $dish->whereHas('category', function ($category) {
                 $category->where('type', 'drinks');
             });
         });
@@ -55,28 +55,32 @@ class OrderDetails extends Model
         return $this->dish->category->type == "foods";
     }
 
-    public function discountItem()
-    {
-        return $this->morphOne(DiscountedItem::class, 'discountable');
-    }
+    // public function discountItem()
+    // {
+    //     return $this->morphOne(DiscountedItem::class, 'discountable');
+    // }
 
     public function getPrice()
     {
         return $this->attributes['price'] - $this->getDiscount();
     }
 
-    public function getDiscount()
-    {
-        if($this->discountItem()->exists())
-        {
-            if ($this->discountItem->getDiscountType() === 'percent') {
-                return ($this->attributes['price_per_piece'] * $this->discountItem->items * $this->discountItem->getDiscountValue() / 100);
-            }
+    // public function getDiscount()
+    // {
+    //     if ($this->discountItem()->exists()) {
+    //         if ($this->discountItem->getDiscountType() === 'percent') {
+    //             return ($this->attributes['price_per_piece'] * $this->discountItem->items * $this->discountItem->getDiscountValue() / 100);
+    //         }
 
-            if ($this->discountItem->getDiscountType() === 'fixed') {
-                return ($this->discountItem->items * $this->discountItem->getDiscountValue());
-            }
-        }
-        return 0;
+    //         if ($this->discountItem->getDiscountType() === 'fixed') {
+    //             return ($this->discountItem->items * $this->discountItem->getDiscountValue());
+    //         }
+    //     }
+    //     return 0;
+    // }
+
+    public function getPriceFormattedAttribute()
+    {
+        return "₱ " . number_format($this->price, 2, '.', ',');
     }
 }

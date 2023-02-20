@@ -1,5 +1,5 @@
 <div>
-    <div x-data="setup()" class="w-full">
+    <div x-data="setup()" class="w-full max-w-screen">
         <div class="flex justify-between mx-6 py-2">
             <div class="flex text-xs space-x-3">
                 <span>
@@ -15,12 +15,12 @@
                 </div>
             </div>
             <div class="flex space-x-3 items-center">
-                @if($dateType == 'single')
+                @if ($dateType == 'single')
                     <button wire:click="prevDate"><i class="fa fa-arrow-left"></i></button>
                     <x-input type="date" class="w-auto text-sm" wire:model="date" />
                     <button wire:click="nextDate"><i class="fa fa-arrow-right"></i></button>
                 @endif
-                @if($dateType == 'range')
+                @if ($dateType == 'range')
                     <x-input type="date" class="w-auto text-sm" wire:model="date" />
                     <span>-</span>
                     <x-input type="date" class="w-auto text-sm" wire:model="date2" />
@@ -30,7 +30,7 @@
         <ul class="flex justify-start items-center my-4 mx-6">
             <template x-for="(tab, index) in tabs" :key="index">
                 <li class="cursor-pointer py-2 px-4 text-gray-500 border-b-8"
-                    :class="activeTab===index ? 'text-green-500 border-green-500' : ''" @click="activeTab = index"
+                    :class="activeTab === index ? 'text-green-500 border-green-500' : ''" @click="activeTab = index"
                     x-text="tab"></li>
             </template>
         </ul>
@@ -70,6 +70,9 @@
                                 Order #</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Customer</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Time</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -105,12 +108,27 @@
                                     {{ $order->order_number }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
+                                    {{ $order->full_name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                                     {{ $order->created_at->format('h:i A') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-900">
                                     <ul class="list-disc">
-                                        @foreach ($order->orderDishes() as $item)
-                                        <li class="text-xs">{{ $item['dish_name'] }} ({{ $item['qty'] }})</li>
+                                        {{-- @foreach ($order->orderDishes() as $item)
+                                            <li class="text-xs">{{ $item['dish_name'] }} ({{ $item['qty'] }}) {{ $item['discounted'] ? '*' : '' }}</li>
+                                        @endforeach --}}
+                                        @foreach ($order->orderDetails as $item)
+                                            <li class="text-xs">
+                                                {{ $item->dish->name . ' | ' . $item->dish->properties }}
+                                                ({{ $item->pcs }})
+                                                <span class="text-red-500 font-bold">
+                                                    {{ $item->discount ? '*' : '' }}
+                                                </span>
+                                                <div>
+                                                    {{ $item->price_formatted }}
+                                                </div>
+                                            </li>
                                         @endforeach
                                     </ul>
                                 </td>
@@ -119,20 +137,27 @@
                                     {{ $order->waiter->full_name }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    {{ '₱ '. number_format($order->totalPriceWithoutDiscount(), 2, '.', ',') }}</td>
+                                    {{ '₱ ' . number_format($order->totalPriceWithoutDiscount(), 2, '.', ',') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ '₱ '. number_format($order->getCash(), 2, '.', ',') }}
+                                    {{ '₱ ' . number_format($order->getCash(), 2, '.', ',') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ '₱ '. number_format($order->getGCash(), 2, '.', ',') }}
+                                    {{ '₱ ' . number_format($order->getGCash(), 2, '.', ',') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     ₱ {{ number_format($order->change, 2, '.', ',') }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <!-- <button onclick="event.preventDefault(); print({{ $order->id }})"> -->
-                                    <button x-on:click="print({{$order->id}})">
+                                    <button type="button" x-on:click="print({{ $order->id }})">
                                         <i class="fa fa-print"></i>
+                                    </button>
+                                    <button type="button" class="text-red-500"
+                                        wire:click="delete({{ $order }})">
+                                        <div wire:loading>
+
+                                        </div>
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -140,117 +165,32 @@
                             <tr>
                                 <td colspan="9" class="text-center text-sm text-red-500 py-4">No records</td>
                             </tr>
-
                         @endforelse
                     </tbody>
-                    @if($orders->count() > 0)
-                    <tfoot>
-                        <tr>
-                            <td colspan="5"></td>
-                            <td class="text-center text-md text-gray-500 py-4">Subtotal</td>
-                            <td colspan="5" class="text-right text-md text-gray-500 py-4 px-6">
-                                <span>
+                    @if ($orders->count() > 0)
+                        <tfoot>
+                            <tr>
+                                <td colspan="5"></td>
+                                <td class="text-center text-md text-gray-500 py-4">Subtotal</td>
+                                <td colspan="5" class="text-right text-md text-gray-500 py-4 px-6">
+                                    <span>
 
-                                    {{ "P ". number_format($orders->sum('total'), 2, '.',',') }}
-                                </span>
-                                <span class="font-bold">
+                                        {{ 'P ' . number_format($orders->sum('total'), 2, '.', ',') }}
+                                    </span>
+                                    <span class="font-bold">
 
-                                    ({{ "P ". number_format($total, 2, '.',',') }})
-                                </span>
-                            </td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
+                                        ({{ 'P ' . number_format($total, 2, '.', ',') }})
+                                    </span>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     @endif
                 </table>
                 <div class="mx-3">
                     {{ $orders->links() }}
                 </div>
             </div>
-            {{-- <div x-show="activeTab===1">
-
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Dish
-                                Name</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Quantity</th>
-
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($dishes as $dish)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $dish->name }} ({{ $dish->properties }})</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $dish->quantity }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <div class="mx-3">
-                    {{ $dishes->links() }}
-                </div>
-            </div> --}}
-
-            {{-- <div x-show="activeTab===2">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Waiter Name</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Kitchen</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Total</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Number of errors</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <span class="sr-only">Action</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($waiters as $waiter)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $waiter->full_name }}
-                            <td class="text-sm px-6 py-4 whitespace-nowrap text-gray-900">
-                                ₱ {{ $waiter->runInKitchen()}}
-                            </td>
-                            <td class="text-sm px-6 py-4 whitespace-nowrap text-gray-900">
-                                ₱ {{ $waiter->ordersBy() }}
-                            </td>
-                            <td class="text-sm px-6 py-4 whitespace-nowrap text-gray-900">
-                                <ul>
-                                    <li>Voided orders: {{ $waiter->trashedOrders() }}</li>
-                                    <li>Voided ordered dishes: {{ $waiter->orderErrors() }}</li>
-                                </ul>
-                            </td>
-                            <td class="text-sm px-6 py-4 whitespace-nowrap text-gray-900">
-                                <button type="button"
-                                    x-on:click="printPerWaiter({{$waiter->id}})">
-                                <!-- onclick="event.preventDefault(); printPerWaiter({{ $waiter->id }})" > -->
-
-                                    <i class="fa fa-print"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div> --}}
 
             <div x-show="activeTab === 1">
                 <div class="mx-6">
@@ -261,64 +201,74 @@
                             Total Sales:
                         </div>
                         <div>
-                            {{ '₱ '.
-                            number_format( $overalls->sum( function ($overall) {
-                                return $overall->dishes->sum( function ($dish) {
-                                    return $dish->orderDetails->sum('price');
-                                });
-                            }), 2, '.', ',')
-                        }}
+                            {{ '₱ ' .
+                                number_format(
+                                    $overalls->sum(function ($overall) {
+                                        return $overall->dishes->sum(function ($dish) {
+                                            return $dish->getTotalSales();
+                                        });
+                                    }),
+                                    2,
+                                    '.',
+                                    ',',
+                                ) }}
                         </div>
                     </div>
 
                     @foreach ($overalls as $overall)
-                    <div>
-                        <span class="uppercase">
+                        <div>
+                            <span class="uppercase">
 
-                            {{ $overall->name }}
-                        </span>
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Item</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4"></th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Quantity</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($overall->dishes as $dish)
+                                {{ $overall->name }}
+                            </span>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $dish->name }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                            {{ $dish->properties }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                            {{ $dish->orderDetails->sum('pcs') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                            {{ '₱ '. number_format($dish->orderDetails->sum('price'), 2, '.', ',') }}
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                            Item</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                            Quantity</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                            Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($overall->dishes as $dish)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {{ $dish->name }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                {{ $dish->properties }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                {{ $dish->orderDetails->sum('pcs') }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                                {{ '₱ ' . number_format($dish->getTotalSales(), 2, '.', ',') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot class="bg-gray-50">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Total</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">
+                                            {{ '₱ ' .number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalSales();}),2,'.',',') }}
                                         </td>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot class="bg-gray-50">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">Total</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                </tfoot>
+                            </table>
 
-                    </div>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -336,12 +286,14 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Date</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                    Date</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                    Total</th>
                                 <th scope="col" class="relative px-6 py-3">
-                                        <span class="sr-only">Action</span>
-                                    </th>
+                                    <span class="sr-only">Action</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -351,7 +303,7 @@
                                         {{ $report->date }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                        {{ '₱ '. number_format($report->total_remittance, 2, '.', ',') }}
+                                        {{ '₱ ' . number_format($report->total_remittance, 2, '.', ',') }}
                                     </td>
                                     <td class="px-6 py-4">
                                         <a href="/admin/reports/show/{{ $report->id }}">
@@ -377,15 +329,20 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Order</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                    Order</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Name</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                    Name</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Care Of</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                    Care Of</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Date</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                    Date</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                    Total</th>
 
                             </tr>
                         </thead>
@@ -405,7 +362,7 @@
                                         {{ $unpaid->created_at->format('F d, Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                        {{ '₱ '.number_format($unpaid->total, 2, '.', ',') }}
+                                        {{ '₱ ' . number_format($unpaid->total, 2, '.', ',') }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -414,7 +371,8 @@
                             <tr class="bg-gray-300">
                                 <td colspan="3"></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">Total</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{{ '₱ '.number_format($unpaids->sum('total'), 2, '.', ',') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                                    {{ '₱ ' . number_format($unpaids->sum('total'), 2, '.', ',') }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -466,7 +424,7 @@
             date1: @entangle('date'),
             date2: @entangle('date2'),
             print(id) {
-                a = window.open('/print-po/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
+                a = window.open('/print-po/' + id, 'myWin', 'left=50, top=50, width=400, height=800');
                 a.screenX = 0;
                 a.screenY = 0;
                 a.document.title = "Print";
@@ -475,9 +433,9 @@
                     a.close();
                 }, 1000);
             },
-            printPerWaiter(id)
-            {
-                a = window.open('/print-waiter-report/'+id+'/'+this.date1+'/'+this.date2, 'myWin', 'left=50, top=50, width=400, height=800');
+            printPerWaiter(id) {
+                a = window.open('/print-waiter-report/' + id + '/' + this.date1 + '/' + this.date2, 'myWin',
+                    'left=50, top=50, width=400, height=800');
                 a.screenX = 0;
                 a.screenY = 0;
                 a.document.title = "Print";
@@ -488,5 +446,4 @@
             },
         };
     };
-
 </script>

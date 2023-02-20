@@ -2,6 +2,6 @@
     <x-slot name="navbar">
         @include('layouts.order-nav')
     </x-slot>
-    @livewire('order.details-new')
+    @livewire('order.order-now')
 
 </x-waiter-layout>

@@ -30,6 +30,7 @@ class Create extends Component
     public $totalUnpaid;
     public $totalRemittance;
     public $totalPurchases;
+    public $totalDiscount;
 
     public $gcash;
     public $cash;
@@ -44,14 +45,11 @@ class Create extends Component
 
     public function updatedDateType($value)
     {
-        if($value == 'range')
-        {
+        if ($value == 'range') {
             $this->tempDate = $this->date;
             $this->date = Carbon::parse($this->date)->startOfMonth()->toDateString();
             $this->date2 = Carbon::parse($this->date)->endOfMonth()->toDateString();
-
-        }else
-        {
+        } else {
             $this->date = $this->tempDate;
             $this->date2 = "";
         }
@@ -79,7 +77,7 @@ class Create extends Component
 
         $late = [];
 
-        foreach($this->latePayments as $l) {
+        foreach ($this->latePayments as $l) {
             $full_name = $l->full_name;
             $description = $l->by ? "care off {$l->by}" : "";
             $date = $l->created_at->format('M d');
@@ -93,7 +91,7 @@ class Create extends Component
 
         $unpaids = [];
 
-        foreach($this->unpaids as $u) {
+        foreach ($this->unpaids as $u) {
             $full_name = $u->full_name;
             $description = $u->by ? "care off {$u->by}" : "";
             $price = number_format($u->total, 2, '.', ',');
@@ -105,7 +103,7 @@ class Create extends Component
 
         $purchases = [];
 
-        foreach($this->purchases as $p) {
+        foreach ($this->purchases as $p) {
             $purchases[] = [
                 'name' => $p['name'],
                 'price' => $p['price'],
@@ -119,6 +117,7 @@ class Create extends Component
             'late_payments' => $this->lateTotal,
             'total_remittance' => $this->totalRemittance,
             'total_sales' => $this->total,
+            'total_discount' => $this->totalDiscount,
             'spoilages' => $this->spoilages,
             'late' => $late,
             'unpaid' => $unpaids,
@@ -140,34 +139,40 @@ class Create extends Component
                 $dish->orderBy('name');
             },
             'dishes.orderDetails' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
+                $order->when($this->dateType == 'single', function ($query) {
+                    $query->whereDate('created_at', $this->date);
                 });
             },
             'dishes.orderDetails.order' => function ($order) {
-                $order->when($this->dateType == 'single', function($query){
-                    $query->whereDate( 'created_at', $this->date );
+                $order->when($this->dateType == 'single', function ($query) {
+                    $query->whereDate('created_at', $this->date);
                 });
             },
         ])
-        ->get();
+            ->get();
 
-        $this->unpaids = Order::where('checked_out', false)->whereDate( 'created_at', $this->date )->get();
+        $this->unpaids = Order::where('checked_out', false)->whereDate('created_at', $this->date)->get();
 
-        $order = Order::whereDate('created_at', $this->date)
+        $orders = Order::whereDate('created_at', $this->date)
             ->whereDate('paid_on', $this->date);
 
-        $this->gcash = (clone $order)->where('payment_type', 'gcash')->sum('total');
-        $this->cash = (clone $order)->where('payment_type', 'cash')->sum('total');
+        $this->gcash = (clone $orders)->where('payment_type', 'gcash')->sum('total');
+        $this->cash = (clone $orders)->where('payment_type', 'cash')->sum('total');
 
         $this->latePayments = Order::with(['orderDetails'])->where(function ($query) {
             $query->whereRaw('DATE(paid_on) != DATE(created_at)');
         })->whereDate('paid_on', $this->date)->get();
 
 
-        $this->total = $this->overalls->sum( function ($overall) {
-            return $overall->dishes->sum( function ($dish) {
-                return $dish->orderDetails->sum('price');
+        $this->total = $this->overalls->sum(function ($overall) {
+            return $overall->dishes->sum(function ($dish) {
+                return $dish->getTotalSales();
+            });
+        });
+
+        $this->totalDiscount = $this->overalls->sum(function ($overall) {
+            return $overall->dishes->sum(function ($dish) {
+                return $dish->getTotalDiscount();
             });
         });
 

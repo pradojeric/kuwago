@@ -29,6 +29,7 @@ class DetailsNew extends Component
     public $oldOrders = [];
     public $order;
 
+    public $isReviewing;
     public $fullName = '';
 
     public $config;
@@ -67,7 +68,7 @@ class DetailsNew extends Component
                     'full_name' => $this->fullName,
                     'payment_type' => $this->paymentType,
                     'total' => $this->totalPrice,
-                    'cash' => $this->cash,
+                    'cash' => $this->cash != '' ? $this->cash : null,
                     'change' => $this->change,
                     'care_off' => $this->care_off,
                     'by' => $this->care_off ? $this->by : '',
@@ -81,15 +82,23 @@ class DetailsNew extends Component
             try {
                 foreach ($this->orderedDishes as $item) {
 
-                    $this->order->orderDetails()->create( [
+                    if (isset($item['new_price'])) {
+                        $orig_price = $item['price'];
+                        $price = $item['new_price'];
+                    } else {
+                        $price = $item['price'];
+                    }
+
+                    $this->order->orderDetails()->create([
                         'dish_id' => $item['id'],
                         'pcs' => $item['quantity'],
-                        'price' => $item['price'] * $item['quantity'],
-                        'price_per_piece' => $item['price'],
+                        'price' => $price * $item['quantity'],
+                        'price_per_piece' => $price,
                         'note' => $item['note'],
                         'printed' => 0,
+                        'discounted' => $item['enable_discount'] ?? false,
+                        'orig_price' => $orig_price ?? null
                     ]);
-
                 }
 
                 $this->config->increment('order_no');
@@ -98,7 +107,6 @@ class DetailsNew extends Component
                 dd($e->getMessage());
                 DB::rollBack();
             }
-
         });
 
         // event(new AnyOrderUpdatedEvent());

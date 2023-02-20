@@ -35,39 +35,55 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">Item</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                                    Item</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4"></th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-1/4">
+                                                </th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Quantity</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Quantity</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Total</th>
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Discount</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                                    Total</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($overall->dishes as $dish)
                                                 <tr>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td class="px-2 py-4 text-sm text-gray-900">
                                                         {{ $dish->name }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <td class="px-2 py-4 text-sm text-gray-900 text-center">
                                                         {{ $dish->properties }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    <td
+                                                        class="px-2 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                                         {{ $dish->orderDetails->sum('pcs') }}
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                                        {{ '₱ '. number_format($dish->orderDetails->sum('price'), 2, '.', ',') }}
+                                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right">
+                                                        ({{ '₱ ' . number_format($dish->getTotalDiscount(), 2, '.', ',') }})
+                                                    </td>
+                                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right">
+                                                        {{ '₱ ' . number_format($dish->getTotalSales(), 2, '.', ',') }}
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot class="bg-gray-50">
                                             <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap">Total</td>
+                                                <td class="px-2 py-4 whitespace-nowrap">Total</td>
                                                 <td></td>
                                                 <td></td>
-                                                <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-right">{{'₱ '. number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}</td>
+                                                <td class="px-2 py-4 whitespace-nowrap text-red-500 text-sm text-right">
+                                                    ({{ '₱ ' .number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalDiscount();}),2,'.',',') }})
+                                                </td>
+                                                <td class="px-2 py-4 whitespace-nowrap font-bold text-lg text-right">
+                                                    {{ '₱ ' .number_format($overall->dishes->sum(function ($dish) {return $dish->getTotalSales();}),2,'.',',') }}
+                                                </td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -81,23 +97,25 @@
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col"
-                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">Spoilage</th>
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-full">
+                                                Spoilage</th>
                                             <th scope="col"
-                                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">Quantity</th>
+                                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center w-20">
+                                                Quantity</th>
 
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($spoilages as $spoilage)
-                                        <tr>
-                                            <td class="whitespace-nowrap text-sm text-gray-900">
-                                                {{ $spoilage['dish'] }}
-                                            </td>
-                                            <td class="whitespace-nowrap text-sm text-gray-900 text-center">
-                                                {{ $spoilage['quantity'] }}
-                                            </td>
+                                        @foreach ($spoilages as $spoilage)
+                                            <tr>
+                                                <td class="whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $spoilage['dish'] }}
+                                                </td>
+                                                <td class="whitespace-nowrap text-sm text-gray-900 text-center">
+                                                    {{ $spoilage['quantity'] }}
+                                                </td>
 
-                                        </tr>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -107,6 +125,21 @@
                         </div>
 
                         <hr class="my-2 py-2 text-black h-5">
+
+                        <div class="mb-1 flex justify-between px-3">
+                            <div class="font-bold">
+                                Total Discount
+                            </div>
+                            <div class='flex justify-between w-1/3'>
+                                <div>
+                                    ₱
+                                </div>
+                                <div class="text-red-500">
+                                    ({{ number_format($totalDiscount, 2, '.', ',') }})
+                                </div>
+                            </div>
+
+                        </div>
 
                         <hr>
 
@@ -127,7 +160,7 @@
                                             ₱
                                         </div>
                                         <div>
-                                            {{number_format( $overall->dishes->sum(function ($dish) { return $dish->orderDetails->sum('price'); }) , 2, '.', ',') }}
+                                            {{ number_format($overall->dishes->sum(function ($dish) {return $dish->orderDetails->sum('price');}),2,'.',',') }}
                                         </div>
                                     </div>
 
@@ -180,7 +213,7 @@
                             </div>
 
 
-                                <hr>
+                            <hr>
 
                             <div class="flex justify-between font-bold px-3 py-1">
                                 <div>
@@ -198,13 +231,13 @@
 
                             <hr>
 
-                            @if(!empty($latePayments) || count($latePayments) > 0)
+                            @if (!empty($latePayments) || count($latePayments) > 0)
 
                                 <div class="px-3 font-bold mt-5">
                                     Paid Receivables
                                 </div>
 
-                                    <hr>
+                                <hr>
 
                                 @foreach ($latePayments as $late)
                                     <div class="flex items-center justify-between px-3">
@@ -262,7 +295,7 @@
                                 </div>
                             </div>
 
-                            @foreach($purchases as $purchase)
+                            @foreach ($purchases as $purchase)
                                 <div class="flex justify-between px-3 py-1">
                                     <div class="w-1/2 flex items-center space-x-2 ml-5">
                                         {{ $purchase['name'] }}
@@ -306,7 +339,6 @@
 
 
 <script>
-
     function setup() {
         return {
             date1: @entangle('date'),
@@ -323,32 +355,32 @@
             totalPurchases: @entangle('totalPurchases').defer,
             totalUnpaid: @entangle('totalUnpaid').defer,
             gross: 0,
-            init(){
+            init() {
                 this.totalRemittance = 0
             },
-            getLate(){
+            getLate() {
                 return numberWithCommas(this.late)
             },
-            getTotalPurchase(){
+            getTotalPurchase() {
                 return numberWithCommas(this.totalPurchases)
             },
-            getTotalUnpaid(){
+            getTotalUnpaid() {
                 return numberWithCommas(this.totalUnpaid)
             },
-            getTotalSales(){
+            getTotalSales() {
                 return numberWithCommas(this.total)
             },
-            getCash(){
+            getCash() {
                 return numberWithCommas(this.cash);
             },
-            getGcash(){
+            getGcash() {
                 return numberWithCommas(this.gcash)
             },
-            getGrossIncome(){
+            getGrossIncome() {
                 this.gross = this.total + this.late
                 return numberWithCommas(this.gross)
             },
-            getTotalRemittance(){
+            getTotalRemittance() {
 
                 this.totalRemittance = this.gross - this.totalPurchases
                 return numberWithCommas(this.totalRemittance)
@@ -359,5 +391,4 @@
     function numberWithCommas(x) {
         return x.toFixed(2).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     }
-
 </script>
