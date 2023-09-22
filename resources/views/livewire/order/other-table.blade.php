@@ -70,7 +70,8 @@
 
 <script>
     function print(id) {
-        a = window.open('/print-bill/' + id, 'myWin', 'left=50, top=50, width=400, height=800');
+        a = window.open('/print-po/'+id, 'myWin', 'left=50, top=50, width=400, height=800');
+        // a = window.open('/print-bill/' + id, 'myWin', 'left=50, top=50, width=400, height=800');
         a.screenX = 0;
         a.screenY = 0;
         a.document.title = "Print";

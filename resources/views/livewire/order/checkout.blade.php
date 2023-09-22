@@ -194,14 +194,14 @@
         var button = document.getElementById('cOut');
         if (button != null) button.disabled = true;
 
-        var id = event.detail.orderId;
-        a = window.open('/print-po/' + id, 'myWin', 'left=50, top=50, width=400, height=800');
-        a.screenX = 0;
-        a.screenY = 0;
-        a.document.title = "Print";
-        a.focus();
+        // var id = event.detail.orderId;
+        // a = window.open('/print-po/' + id, 'myWin', 'left=50, top=50, width=400, height=800');
+        // a.screenX = 0;
+        // a.screenY = 0;
+        // a.document.title = "Print";
+        // a.focus();
         setTimeout(() => {
-            a.close();
+            // a.close();
             location.href = "{{ url('/waiter-order') }}"
         }, 1000);
     });
