@@ -41,11 +41,10 @@ class DetailsNew extends Component
     public function mount(Order $order = null)
     {
         $this->config = Configuration::get()->first();
-
         $this->order = $order;
         $this->isReviewing = false;
-        $this->categories = Category::all();
-        $dishes = Dish::orderBy('name')->get();
+        $this->categories = Category::where('status', 1)->get();
+        $dishes = Dish::orderBy('name')->where('status', 1)->get();
         $this->dishes = $dishes->each(function ($dish) {
             $dish['quantity'] = 1;
         })->toArray();

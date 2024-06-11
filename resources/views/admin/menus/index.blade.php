@@ -66,14 +66,24 @@
                                                     class="text-green-600 hover:text-green-900 ml-3">Show dishes</a>
                                                 <a href="{{ route('admin.menus.edit', $menu) }}"
                                                     class="text-indigo-600 hover:text-indigo-900 ml-3">Edit</a>
-                                                <a href="#" @click.prevent="selectDelete('form-delete{{$menu->id}}')"
+                                                    @if($menu->status)
+                                                    <a href="#" @click.prevent="selectDelete('form-delete{{$menu->id}}')"
                                                     class="text-red-600 hover:text-red-900 ml-3">Delete</a>
+                                                    @else
+                                                    <a href="#" @click.prevent="selectDelete('form-restore{{$menu->id}}')"
+                                                    class="text-yellow-600 hover:text-yellow-900 ml-3">Restore</a>
+                                                    @endif
                                             </td>
                                         </tr>
                                         <form action="{{ route('admin.menus.destroy', $menu) }}" method="post"
                                             id="form-delete{{$menu->id}}">
                                             @csrf
                                             @method('delete')
+                                        </form>
+                                        <form action="{{ route('admin.menu.restore', $menu) }}" method="post"
+                                            id="form-restore{{$menu->id}}">
+                                            @csrf
+                                            @method('put')
                                         </form>
                                         @empty
                                         <tr>
@@ -104,9 +114,20 @@
             'modalButton': 'Delete',
             selectDelete(id)
             {
+                this.modalTitle = 'Delete Menu';
+                this.modalDescription = 'Are you sure you want to delete this menu?';
+                this.modalButton = 'Delete'
                 this.open = true;
                 this.formId = id;
             },
+            selectRestore(id)
+            {
+                this.modalTitle = 'Restore Menu';
+                this.modalDescription = 'Are you sure you want to restore this menu?';
+                this.modalButton = 'Restore'
+                this.open = true;
+                this.formId = id;
+            }
         }
 
     }

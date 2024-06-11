@@ -33,8 +33,8 @@ class OrderNow extends Component
     public function mount()
     {
         $this->config = Configuration::get()->first();
-        $this->categories = Category::with(['dishes'])->get()->toArray();
-        $this->dishes = Dish::with(['category'])->orderBy('name')->get()->map(function ($dish) {
+        $this->categories = Category::with(['dishes'])->where('status', 1)->get()->toArray();
+        $this->dishes = Dish::with(['category'])->where('status', 1)->orderBy('name')->get()->map(function ($dish) {
             $dish['quantity'] = 1;
             return $dish;
         })->toArray();

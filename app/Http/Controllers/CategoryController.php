@@ -133,6 +133,28 @@ class CategoryController extends Controller
      */
     public function destroy(Category $menu)
     {
-        //
+        $menu->status = 0;
+        $menu->save();
+
+        foreach($menu->dishes as $dish) {
+            $dish->status = 0;
+            $dish->save();
+        }
+
+        return back();
+    }
+
+    public function restore(Category $menu) {
+        $menu->status = 1;
+        $menu->save();
+
+        foreach($menu->dishes as $dish) {
+            $dish->status = 1;
+            $dish->save();
+        }
+
+
+        return back();
+
     }
 }

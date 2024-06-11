@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('tables', TableController::class);
 
         Route::resource('menus', CategoryController::class);
+        Route::put('menus/{menu}/restore', [CategoryController::class, 'restore'])->name('menu.restore');
 
         Route::get('/reports', [ReportController::class, 'index']);
         Route::get('/reports/create', Create::class);
